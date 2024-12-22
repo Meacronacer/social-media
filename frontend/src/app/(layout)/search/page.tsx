@@ -15,7 +15,9 @@ const SearchPage = () => {
       </div>
 
       {/* search results */}
-      <div className="mt-5 flex flex-col gap-y-2">
+      <div className="mt-5 flex h-[calc(100vh_-_140px)] flex-col gap-y-2 overflow-y-auto pr-2 scrollbar-thin scrollbar-webkit">
+        <SearchItem />
+        <SearchItem />
         <SearchItem />
         <SearchItem />
       </div>
