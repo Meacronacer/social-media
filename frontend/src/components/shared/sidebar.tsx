@@ -24,7 +24,7 @@ const SideBar = () => {
   const router = useRouter();
 
   return (
-    <aside className="fixed flex h-screen w-full max-w-[300px] flex-col justify-between gap-y-5 p-3">
+    <aside className="fixed flex h-screen w-full max-w-[300px] flex-col justify-between gap-y-5 border-r border-white/20 p-3">
       <div>
         <Image
           className="ml-4 mt-2"
