@@ -7,16 +7,25 @@ import EnterIcon from "@/components/svgs/enter.svg";
 import Post from "@/components/shared/post";
 import PlusIcon from "@/components/svgs/plus.svg";
 import Skill from "@/components/shared/skill";
+import { useAppSelector } from "@/hooks/useRedux";
 
-const HomePage = () => {
+const ProfilePage: React.FC = () => {
+  const user = useAppSelector((state) => state.authSlice.user);
   return (
     <section className="w-[calc(screen_-_300px)] p-6">
       {/* top bar */}
       <section className="flex w-full items-center justify-between">
         <div className="flex items-center gap-x-6">
-          <Image width={140} height={140} alt="avatar" src="/avatar.png" />
-          <h1 className="text-[24px] font-extrabold">Райан Гослинг</h1>
-          <span className="text-[14px]">ryan.gosling</span>
+          <Image
+            width={140}
+            height={140}
+            alt="avatar"
+            className="rounded-[50%]"
+            src={user?.img_url || "/avatar.png"}
+          />
+          <h1 className="text-[24px] font-extrabold">
+            {user?.first_name} {user?.second_name}
+          </h1>
         </div>
         <Button>
           <span>Редактировать</span>
@@ -26,11 +35,18 @@ const HomePage = () => {
 
       <div className="mt-12 flex w-full gap-x-[64px]">
         {/* posts */}
-        <section className="scrollbar-thin scrollbar-webkit h-[calc(100vh_-_250px)] w-full max-w-[65%] overflow-y-auto pr-2">
+        <section className="h-[calc(100vh_-_250px)] w-full max-w-[65%] overflow-y-auto pr-2 scrollbar-thin scrollbar-webkit">
           {/* write new post */}
           <div className="flex h-[76px] items-center gap-x-3 border-2 border-white bg-black p-[16px]">
-            <Image src="/avatar.png" width={32} height={32} alt="avatar" />
-            <Input placeholder="Напишите что-нибудь" />
+            <img
+              src={user?.img_url || "/avatar.png"}
+              className="h-8 w-8 rounded-[50%]"
+              alt="avatar"
+            />
+            <Input
+              containerClassName="w-full"
+              placeholder="Напишите что-нибудь"
+            />
             <div className="flex h-10 w-10 cursor-pointer items-center justify-center duration-300 hover:bg-active">
               <Image width={16} height={16} src="/smile.svg" alt="icons" />
             </div>
@@ -95,4 +111,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default ProfilePage;

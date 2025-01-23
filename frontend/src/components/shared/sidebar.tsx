@@ -9,6 +9,11 @@ import SearchIcon from "@/components/svgs/search.svg";
 import ArrowRightIcon from "@/components/svgs/arrow-right.svg";
 import SettingsIcon from "@/components/svgs/settings.svg";
 import SubscriptionItem from "./subscriptionItem";
+import { useGetMeQuery } from "@/api/auth";
+import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { Iuser } from "@/@types/user";
+import { useAppSelector } from "@/hooks/useRedux";
 
 const nav = [
   { image: <HomeIcon />, label: "Моя страница", link: "/" },
@@ -19,9 +24,11 @@ const nav = [
   // ["/search.svg", "Поиск", "/search"],
 ];
 
-const SideBar = () => {
+const SideBar: React.FC = () => {
   const path = usePathname();
   const router = useRouter();
+
+  const user = useAppSelector((state) => state.authSlice.user);
 
   return (
     <aside className="fixed flex h-screen w-full max-w-[300px] flex-col justify-between gap-y-5 border-r border-white/20 p-3">
@@ -89,8 +96,20 @@ const SideBar = () => {
         )}
       >
         <div className="flex items-center gap-x-3">
-          <Image src="/subs.png" width={32} height={32} alt="avatar" />
-          <span>ryan.gosling</span>
+          <img
+            src={user?.img_url || "/subs.png"}
+            className="h-8 w-8 rounded-[50%]"
+          />
+          {/* <Image
+            src={data?.img_url || "/subs.png"}
+            href=''
+            width={32}
+            height={32}
+            alt="avatar"
+          /> */}
+          <span>
+            {user?.first_name && `${user?.first_name}.${user?.second_name}`}
+          </span>
         </div>
         <SettingsIcon />
       </Link>

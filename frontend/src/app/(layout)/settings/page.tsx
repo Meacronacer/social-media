@@ -1,6 +1,7 @@
 import Skill from "@/components/shared/skill";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import LogoutButton from "@/components/ui/logoutButton";
 import Image from "next/image";
 
 const SettingsPage = () => {
@@ -38,6 +39,8 @@ const SettingsPage = () => {
             в классическом смысле — этот раздел можно добавить
             в сопроводительное письмо.
           </p>
+
+          <LogoutButton />
         </div>
       </div>
 

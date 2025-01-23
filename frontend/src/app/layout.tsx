@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import StoreProvider from "@/providers/storeProvider";
+import { ToastContainer } from "react-toastify";
 
 const geistJetBrainsMono = JetBrains_Mono({
   weight: ["400", "500", "700", "800"],
@@ -18,12 +20,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistJetBrainsMono.className} overflow-hidden antialiased`}
-      >
-        {children}
-      </body>
-    </html>
+    <StoreProvider>
+      <html lang="en">
+        <body
+          className={`${geistJetBrainsMono.className} overflow-hidden antialiased`}
+        >
+          {children}
+          <ToastContainer />
+        </body>
+      </html>
+    </StoreProvider>
   );
 }
