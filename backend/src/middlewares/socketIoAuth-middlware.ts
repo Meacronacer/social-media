@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { ExtendedError } from "socket.io/dist/namespace"; // Import the correct ExtendedError type
 import cookie from "cookie";
-import tokenService from "../services/token-service";
+import tokenService from "../services/token.service";
 
 const socketAuthMiddleware = (
   socket: Socket,

@@ -1,13 +1,8 @@
-import {
-  BaseQueryFn,
-  createApi,
-  FetchArgs,
-  fetchBaseQuery,
-  FetchBaseQueryError,
-} from "@reduxjs/toolkit/query/react";
+import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "./baseFetchInstance";
 
 export const BaseApi = createApi({
+  tagTypes: ["ChatMessages", "Post", "User", "Subscriptions"], // Здесь указываем tagTypes
   baseQuery: baseQueryWithReauth,
   endpoints: () => ({}),
 });

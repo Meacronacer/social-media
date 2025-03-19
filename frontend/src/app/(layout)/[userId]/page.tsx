@@ -1,13 +1,12 @@
-"use client";
 import ProfileSection from "@/components/shared/profileSection";
-import { useParams } from "next/navigation";
+
+export const metadata = {
+  title: "Profile",
+  description: "Official Profile page of our website",
+};
 
 const ProfilePage = () => {
-  const { userId } = useParams(); // Получаем объект router
-
-  const userIdString = Array.isArray(userId) ? userId[0] : userId || "";
-
-  return <ProfileSection isOwnPage={false} userId={userIdString} />;
+  return <ProfileSection isOwnPage={false} />;
 };
 
 export default ProfilePage;

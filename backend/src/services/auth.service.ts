@@ -2,9 +2,9 @@ import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
 import ApiError from "../exceptions/api-errors";
 import UserModel from "../models/User";
-import mailService from "../services/mail-service";
+import mailService from "./mail.service";
 import UserDto from "../dtos/user-dto";
-import tokenService from "../services/token-service";
+import tokenService from "./token.service";
 
 interface IAuthService {
   registration(
@@ -46,14 +46,13 @@ class AuthService implements IAuthService {
     );
 
     const userDto = new UserDto(user);
-    const tokens = tokenService.generateTokens({ ...userDto });
-    await tokenService.saveRefreshTokenInDatabase(
-      userDto.id,
-      tokens.refreshToken
-    );
+    const accessToken = tokenService.generateAccessToken({ ...userDto });
+    const refreshToken = tokenService.generateRefreshToken({ ...userDto });
+    await tokenService.saveRefreshTokenInDatabase(userDto._id, refreshToken);
 
     return {
-      ...tokens,
+      accessToken,
+      refreshToken,
       user: userDto,
     };
   }
@@ -71,14 +70,13 @@ class AuthService implements IAuthService {
     }
 
     const userDto = new UserDto(user);
-    const tokens = tokenService.generateTokens({ ...userDto });
-    await tokenService.saveRefreshTokenInDatabase(
-      userDto.id,
-      tokens.refreshToken
-    );
+    const accessToken = tokenService.generateAccessToken({ ...userDto });
+    const refreshToken = tokenService.generateRefreshToken({ ...userDto });
+    await tokenService.saveRefreshTokenInDatabase(userDto._id, refreshToken);
 
     return {
-      ...tokens,
+      accessToken,
+      refreshToken,
       user: userDto,
     };
   }

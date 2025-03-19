@@ -1,9 +1,4 @@
-// api/auth.ts
-import { IauthResponse } from "@/@types/auth";
-import $api from "@/utils/axiosInstance";
 import { BaseApi, baseHeadersOptions } from "@/utils/baseFetch";
-import { createApi } from "@reduxjs/toolkit/query";
-import { AxiosResponse } from "axios";
 
 export const authApi = BaseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -30,50 +25,8 @@ export const authApi = BaseApi.injectEndpoints({
         headers: baseHeadersOptions,
       }),
     }),
-    getMe: builder.query({
-      query: () => ({
-        url: "/api/auth/get-me",
-        method: "GET",
-        headers: baseHeadersOptions,
-      }),
-    }),
-    getAllUsers: builder.query({
-      query: () => ({
-        url: "/api/auth/all-users",
-        method: "GET",
-        headers: baseHeadersOptions,
-      }),
-    }),
   }),
 });
 
-export const {
-  useLoginMutation,
-  useSignUpMutation,
-  useLogoutMutation,
-  useGetMeQuery,
-  useGetAllUsersQuery,
-} = authApi;
-
-// export const login = async (
-//   email: string,
-//   password: string,
-// ): Promise<AxiosResponse<IauthResponse>> => {
-//   const response = await $api.post("/auth/login", { email, password });
-//   return response.data;
-// };
-
-// export const register = async (
-//   email: string,
-//   password: string,
-// ): Promise<void> => {
-//   const response = await $api.post("/auth/register", {
-//     email,
-//     password,
-//   });
-//   return response.data;
-// };
-
-// export const logout = async () => {
-//   await $api.post("/auth/logout");
-// };
+export const { useLoginMutation, useSignUpMutation, useLogoutMutation } =
+  authApi;

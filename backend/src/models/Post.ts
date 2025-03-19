@@ -1,19 +1,22 @@
 import { Schema, model, Document, Types } from "mongoose";
 
-interface IPost extends Document {
+export interface IPost extends Document {
   author: Types.ObjectId;
   text: string;
-  comments: Types.Array<Types.ObjectId>;
-  likes: Types.Array<string>;
-  createAT: Date;
+  comments: Types.ObjectId[];
+  likes: Types.ObjectId[];
+  createdAt: Date;
 }
 
-const PostSchema = new Schema<IPost>({
-  author: { type: Schema.Types.ObjectId, ref: "User", required: true },
-  text: { type: String, required: true },
-  comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
-  likes: [{ type: String, unique: true }],
-  createAT: { type: Date, default: Date.now },
-});
+const PostSchema = new Schema<IPost>(
+  {
+    author: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    text: { type: String, required: true },
+    comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
+    likes: [{ type: Schema.Types.ObjectId, ref: "User" }],
+    createdAt: { type: Date, default: Date.now },
+  },
+  { timestamps: true } // Автоматически добавляет createdAt и updatedAt
+);
 
 export default model<IPost>("Post", PostSchema);

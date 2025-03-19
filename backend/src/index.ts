@@ -5,6 +5,11 @@ import express, { Application } from "express";
 import passport from "./config/passport";
 import mongoose from "mongoose";
 import authRouter from "./routes/authRouter";
+import userRouter from "./routes/userRouter";
+import chatRouter from "./routes/chatRouter";
+import postRouter from "./routes/postRouter";
+import commentRouter from "./routes/commentRouter";
+import subscriptionRouter from "./routes/subscriptionsRouter";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import errorMiddleware from "./middlewares/error-middleware";
@@ -26,6 +31,11 @@ app.use(
   })
 );
 app.use("/api/auth", authRouter);
+app.use("/api/users", userRouter);
+app.use("/api/chats", chatRouter);
+app.use("/api/posts", postRouter);
+app.use("/api/comment", commentRouter);
+app.use("/api/subscriptions", subscriptionRouter);
 
 app.use(errorMiddleware);
 // Подключаем Socket.io

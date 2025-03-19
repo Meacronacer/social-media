@@ -9,26 +9,34 @@ import SearchIcon from "@/components/svgs/search.svg";
 import ArrowRightIcon from "@/components/svgs/arrow-right.svg";
 import SettingsIcon from "@/components/svgs/settings.svg";
 import SubscriptionItem from "./subscriptionItem";
-import { useGetMeQuery } from "@/api/auth";
-import { useDispatch } from "react-redux";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import { LinkTo } from "@/utils/links";
+import { useGetMeQuery } from "@/api/user";
+import { setUser } from "@/redux/slices/authSlice";
 import { useEffect } from "react";
-import { Iuser } from "@/@types/user";
-import { useAppSelector } from "@/hooks/useRedux";
+import useNewMessageToast from "@/hooks/useNewMessageToast";
+import { useGetUnreadMessagesCountQuery } from "@/api/chats";
+import SubscriptionItemSkeleton from "../skeletons/subscriptionsItemSkeleton";
 
 const nav = [
-  { image: <HomeIcon />, label: "Моя страница", link: "/" },
-  { image: <ChatsIcon />, label: "Чаты", link: "/chats" },
-  { image: <SearchIcon />, label: "Поиск", link: "/search" },
-  // ["/home.svg", "Моя страница", "/"],
-  // ["/chats.svg", "Чаты", "/chats"],
-  // ["/search.svg", "Поиск", "/search"],
+  { image: <HomeIcon />, label: "Profile", link: LinkTo.home },
+  { image: <ChatsIcon />, label: "Chats", link: LinkTo.chats },
+  { image: <SearchIcon />, label: "Search", link: LinkTo.search },
 ];
 
 const SideBar: React.FC = () => {
   const path = usePathname();
   const router = useRouter();
 
-  const user = useAppSelector((state) => state.authSlice.user);
+  const dispatch = useAppDispatch();
+  const { data: user = null, isLoading, isSuccess } = useGetMeQuery();
+  useEffect(() => {
+    if (isSuccess && user) {
+      dispatch(setUser(user)); // Сохраняем данные пользователя в Redux
+    }
+  }, [isSuccess, user, dispatch]);
+
+  const totalUnreadMessagesCount = useNewMessageToast();
 
   return (
     <aside className="fixed flex h-screen w-full max-w-[300px] flex-col justify-between gap-y-5 border-r border-white/20 p-3">
@@ -60,30 +68,46 @@ const SideBar: React.FC = () => {
                   {item.image}
                   {item.label}
                 </Link>
-                {item.label === "Чаты" && (
-                  <div className="h-[18px] w-[26px] bg-primary text-center text-[12px] font-bold text-black">
-                    28
-                  </div>
-                )}
+                {"/" + item.label.toLowerCase() === LinkTo.chats &&
+                  totalUnreadMessagesCount > 0 && (
+                    <div className="h-[18px] w-[26px] bg-primary text-center text-[12px] font-bold text-black">
+                      {totalUnreadMessagesCount}
+                    </div>
+                  )}
               </li>
             ))}
           </ul>
         </nav>
 
-        <span className="ml-4 mt-5 block text-[12px] font-medium text-white/75">
-          Подписчики
-        </span>
+        {user?.followers && user?.followers.length > 0 && (
+          <span className="ml-4 mt-5 block text-[12px] font-medium text-white/75">
+            Followers
+          </span>
+        )}
 
         <div className="mt-5 flex flex-col gap-y-[6px] px-4">
-          <SubscriptionItem image="/subs.png" name="Сара Коннор" />
-          <SubscriptionItem image="/subs.png" name="Кристанна Локен" />
-          <SubscriptionItem image="/subs.png" name="Майкл Уинслоу" />
+          {isLoading ? (
+            <>
+              <SubscriptionItemSkeleton />
+              <SubscriptionItemSkeleton />
+              <SubscriptionItemSkeleton />
+            </>
+          ) : (
+            user?.followers.map((item) => (
+              <SubscriptionItem key={item._id} {...item} />
+            ))
+          )}
         </div>
 
-        <div className="group mt-5 flex cursor-pointer items-center gap-x-3 px-4 hover:text-primary">
-          <span className="text-[12px] font-medium">Все подписчики</span>
-          <ArrowRightIcon className="duration-300 group-hover:translate-x-5" />
-        </div>
+        {user?.followers && user?.followers?.length > 0 && (
+          <div
+            onClick={() => router.push(LinkTo.subscribers)}
+            className="group mt-5 flex cursor-pointer items-center gap-x-3 px-4 hover:text-primary"
+          >
+            <span className="text-[12px] font-medium">All Followers</span>
+            <ArrowRightIcon className="duration-300 group-hover:translate-x-5" />
+          </div>
+        )}
       </div>
 
       <Link
@@ -96,18 +120,14 @@ const SideBar: React.FC = () => {
         )}
       >
         <div className="flex items-center gap-x-3">
-          <img
-            src={user?.img_url || "/subs.png"}
-            className="h-8 w-8 rounded-[50%]"
-          />
-          {/* <Image
-            src={data?.img_url || "/subs.png"}
-            href=''
+          <Image
             width={32}
             height={32}
             alt="avatar"
-          /> */}
-          <span>
+            src={user?.img_url || "/subs.png"}
+            className="h-8 w-8 rounded-[50%]"
+          />
+          <span className="lowercase">
             {user?.first_name && `${user?.first_name}.${user?.second_name}`}
           </span>
         </div>

@@ -1,21 +1,29 @@
+import { IAuthor } from "@/@types/user";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-interface props {
-  image: string;
-  name: string;
-}
-
-const SubscriptionItem: React.FC<props> = ({ image, name }) => {
+const SubscriptionItem: React.FC<IAuthor> = ({
+  _id,
+  img_url,
+  first_name,
+  second_name,
+}) => {
+  const router = useRouter();
   return (
-    <div className="flex cursor-pointer items-center gap-x-3 py-2 hover:bg-active">
+    <div
+      onClick={() => router.push(`/${_id}`)}
+      className="flex cursor-pointer items-center gap-x-3 py-2 hover:bg-active"
+    >
       <Image
-        src={image}
+        src={img_url || "/avatar.png"}
         className="rounded-[50%]"
         height={32}
         width={32}
-        alt={name}
+        alt="avatar"
       />
-      <span className="text-[14px] font-bold">{name}</span>
+      <span className="text-[14px] font-bold">
+        {first_name} {second_name}
+      </span>
     </div>
   );
 };

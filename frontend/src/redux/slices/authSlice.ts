@@ -2,30 +2,25 @@ import { Iuser } from "@/@types/user";
 import { createSlice } from "@reduxjs/toolkit";
 import { authApi } from "@/api/auth";
 
+const userDefault = {
+  _id: "",
+  email: undefined,
+  skills: [],
+  description: "",
+  first_name: undefined,
+  second_name: undefined,
+  img_url: undefined,
+  isActivated: undefined,
+  exp: undefined,
+  iat: undefined,
+};
+
 export interface initialState {
-  user: {
-    id: string | undefined;
-    email: string | undefined;
-    second_name: string | undefined;
-    first_name: string | undefined;
-    img_url: string | undefined;
-    isActivated: boolean | undefined;
-    exp: number | undefined;
-    iat: number | undefined;
-  } | null;
+  user: Iuser;
 }
 
 const initialState: initialState = {
-  user: {
-    id: undefined,
-    email: undefined,
-    first_name: undefined,
-    second_name: undefined,
-    img_url: undefined,
-    isActivated: undefined,
-    exp: undefined,
-    iat: undefined,
-  },
+  user: userDefault,
 };
 
 const authSlice = createSlice({
@@ -36,7 +31,7 @@ const authSlice = createSlice({
       state.user = action.payload;
     },
     clearUser(state) {
-      state.user = null;
+      state.user = userDefault;
     },
   },
 });

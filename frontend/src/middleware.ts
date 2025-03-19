@@ -1,31 +1,70 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import { jwtVerify } from "jose";
 import { LinkTo } from "@/utils/links";
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("accessToken")?.value;
+  const refreshToken = request.cookies.get("refreshToken")?.value;
   const currentUrl = request.nextUrl;
+  const accessSecretKey = process.env.JWT_ACCESS_SECRET;
+  const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
 
-  // Если пользователь авторизован, но находится на страницах /login или /sign-up, перенаправляем его на главную
-  if (
-    accessToken &&
-    (currentUrl.pathname === LinkTo.login ||
-      currentUrl.pathname === LinkTo.signUp)
-  ) {
-    return NextResponse.redirect(new URL(LinkTo.home, request.url));
-  }
+  let isAccessValid = false;
+  let isRefreshValid = false;
 
-  // Если пользователь не авторизован и пытается попасть на защищённые страницы, перенаправляем на /login
-  if (
-    !accessToken &&
-    ![LinkTo.login, LinkTo.signUp].includes(currentUrl.pathname)
-  ) {
-    // Проверяем, не выполняется ли уже редирект на /login
-    if (currentUrl.pathname !== LinkTo.login) {
-      return NextResponse.redirect(new URL(LinkTo.login, request.url));
+  // Проверка валидности access токена
+  if (accessToken && accessSecretKey) {
+    try {
+      const secret = new TextEncoder().encode(accessSecretKey);
+      await jwtVerify(accessToken, secret);
+      isAccessValid = true;
+    } catch (error) {
+      console.error("Access token invalid:", error);
     }
   }
 
-  // Если пользователь не авторизован, но уже находится на /login или /sign-up, пропускаем запрос
+  // Проверка валидности refresh токена
+  if (refreshToken && refreshSecretKey) {
+    try {
+      const secret = new TextEncoder().encode(refreshSecretKey);
+      await jwtVerify(refreshToken, secret);
+      isRefreshValid = true;
+    } catch (error) {
+      console.error("Refresh token invalid:", error);
+    }
+  }
+
+  // Определяем страницы авторизации
+  const isAuthPage = [LinkTo.login, LinkTo.signUp].includes(
+    currentUrl.pathname,
+  );
+
+  // Если пользователь на странице авторизации
+  if (isAuthPage) {
+    // При валидном refresh токене редиректим на главную
+    if (isRefreshValid) {
+      return NextResponse.redirect(new URL(LinkTo.home, request.url));
+    }
+    // Если токены невалидны, очищаем куки и разрешаем остаться
+    if (!isAccessValid && !isRefreshValid) {
+      const response = NextResponse.next();
+      response.cookies.delete("accessToken");
+      response.cookies.delete("refreshToken");
+      return response;
+    }
+    return NextResponse.next();
+  }
+
+  // Для всех остальных страниц
+  if (!isRefreshValid && !isAccessValid) {
+    // Удаляем куки и редиректим на логин при невалидных токенах
+    const response = NextResponse.redirect(new URL(LinkTo.login, request.url));
+    response.cookies.delete("accessToken");
+    response.cookies.delete("refreshToken");
+    return response;
+  }
+
+  // Разрешаем доступ если хотя бы refresh токен валиден
   return NextResponse.next();
 }
 

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import ApiError from "../exceptions/api-errors";
-import authService from "../services/auth-service";
-import tokenService from "../services/token-service";
+import authService from "../services/auth.service";
+import tokenService from "../services/token.service";
 import UserDto from "../dtos/user-dto";
 import { validationResult } from "express-validator";
 
@@ -29,6 +29,11 @@ class AuthController {
     try {
       const { email, password } = req.body;
       const userData = await authService.login(email, password);
+
+      if (!userData.user.isActivated) {
+        res.status(400).json({ message: "user is not activated" });
+      }
+
       res.cookie("accessToken", userData.accessToken, {
         httpOnly: true,
         secure: true,
@@ -52,16 +57,25 @@ class AuthController {
       if (user) {
         //@ts-ignore
         const userDto = new UserDto(user);
-        const { accessToken, refreshToken } = tokenService.generateTokens({
-          ...userDto,
+        const accessToken = tokenService.generateAccessToken({ ...userDto });
+        const refreshToken = tokenService.generateRefreshToken({ ...userDto });
+        await tokenService.saveRefreshTokenInDatabase(
+          userDto._id,
+          refreshToken
+        );
+
+        res.cookie("accessToken", accessToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+        });
+        res.cookie("refreshToken", refreshToken, {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
         });
 
-        await tokenService.saveRefreshTokenInDatabase(userDto.id, refreshToken);
-
-        res.cookie("accessToken", accessToken, { httpOnly: true });
-        res.cookie("refreshToken", refreshToken, { httpOnly: true });
-
-        res.redirect("http://localhost:3000/");
+        res.redirect(process.env.CLIENT_URL as string);
       }
     } catch (e) {
       res.status(500).json({ error: "Google callback error" });

@@ -1,42 +1,94 @@
+"use client";
+
 import Image from "next/image";
 import Skill from "./skill";
 import { Button } from "../ui/button";
 import EnterIcon from "@/components/svgs/enter.svg";
 import ArrowCornerIcon from "@/components/svgs/arrow-corner.svg";
+import { useRouter } from "next/navigation";
+import { IAuthor, Iuser } from "@/@types/user";
 
-const SearchItem = () => {
+export interface SearchItemprops extends Iuser {
+  onSelectUser?: (user: IAuthor) => void; // Новый пропс
+}
+
+const SearchItem: React.FC<SearchItemprops> = ({
+  _id,
+  first_name,
+  second_name,
+  img_url,
+  description,
+  skills,
+  onSelectUser, // Деструктурируем новый пропс
+}) => {
+  const router = useRouter();
   return (
-    <div className="flex h-[160px] w-full items-center justify-between gap-x-[100px] border-2 px-6 py-10">
+    <div className="flex h-[160px] w-full animate-fade-in items-center justify-between gap-x-[100px] border-2 px-6 py-10">
       <div className="flex items-center gap-x-5">
-        <Image width={71} height={71} src="/avatar.png" alt="avatar" />
+        <Image
+          onClick={() => router.push(`/${_id}`)}
+          width={71}
+          height={71}
+          className="h-[71px] w-[71px] cursor-pointer rounded-[50%] duration-200 hover:scale-105"
+          src={img_url || "/avatar.png"}
+          alt="avatar"
+        />
         <div className="flex flex-col gap-y-1">
-          <span className="text-[18px] font-extrabold">Райан Гослинг</span>
-          <span className="text-[14px] text-white/50">ryan.gosling</span>
+          <span
+            onClick={() => router.push(`/${_id}`)}
+            className="cursor-pointer text-[18px] font-extrabold"
+          >
+            {first_name} {second_name}
+          </span>
         </div>
       </div>
 
-      <p className="text-[12px] font-medium">
-        Список навыков, который мы обсудили выше, — основа резюме,
-        но не единственная его часть. Также можно рассказать о себе
-        в классическом смысле — этот раздел можно добавить в сопроводительное
-        письмо.
+      <p className="max-w-[340px] text-[12px] font-medium">
+        {description
+          ? description
+          : "the user has not filled in the description field yet"}
       </p>
 
       <div className="flex min-w-[150px] flex-wrap gap-1">
-        <Skill text="JS" />
-        <Skill text="CSS" />
-        <Skill text="HTML" />
-        <Skill text="ANGULAR" />
-        <Skill text="FRONTEND" />
+        {skills.length > 0 ? (
+          skills
+            ?.slice(0, 8)
+            .map((item: string, index: number) => (
+              <Skill key={index} text={item} />
+            ))
+        ) : (
+          <p className="text-[12px] font-medium">
+            the user has not yet indicated what skills he has
+          </p>
+        )}
       </div>
 
       <div className="flex gap-x-[6px]">
-        <Button>
-          Написать
+        <Button
+          className="whitespace-nowrap"
+          onClick={() => {
+            if (onSelectUser) {
+              onSelectUser({
+                _id,
+                first_name,
+                second_name,
+                img_url,
+              });
+            }
+          }}
+        >
+          Send message
           <EnterIcon />
         </Button>
 
-        <Button className="p-3">
+        <Button
+          onClick={() => {
+            if (_id) {
+              router.push(_id);
+            }
+          }}
+          className="p-3"
+        >
           <ArrowCornerIcon />
         </Button>
       </div>

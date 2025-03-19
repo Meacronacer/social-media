@@ -1,6 +1,5 @@
 import { VariantProps, cva } from "class-variance-authority";
 import { cn } from "../../utils/twMerge";
-import { BtnLoader } from "../shared/btnLoader";
 
 const ButtonsVariants = cva(
   `flex items-center justify-center gap-x-2 h-[44px] px-5 py-[10px] text-base font-medium rounded-lg transition-colors duration-300
@@ -10,15 +9,10 @@ const ButtonsVariants = cva(
     variants: {
       variant: {
         default: `bg-primary text-black border border-black hover:bg-active hover:text-white hover:border-white`,
-        secondary: `bg-white text-black border border-black hover:bg-black hover:text-white border-white`,
-        outline: `bg-transparent text-black border border-black hover:bg-black hover:text-white`,
+        secondary: `bg-active text-white border`,
+        outline: `bg-transparent text-white border border-white hover:bg-black hover:bg-gray-600`,
         ghost: `bg-transparent text-black hover:bg-gray-100`,
         danger: "bg-red-500 text-white hover:opacity-75",
-      },
-      size: {
-        sm: "h-8 px-3 py-1 text-sm",
-        md: "h-10 px-4 py-2 text-base",
-        lg: "h-12 px-6 py-3 text-lg",
       },
       loading: {
         true: "opacity-75 pointer-events-none",
@@ -26,7 +20,6 @@ const ButtonsVariants = cva(
     },
     defaultVariants: {
       variant: "default",
-      size: "md",
       loading: false,
     },
   },
@@ -42,7 +35,6 @@ interface ButtonProps
 const Button: React.FC<ButtonProps> = ({
   className,
   variant,
-  size,
   loading,
   isLoading = false,
   icon,
@@ -52,7 +44,7 @@ const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={cn(
-        ButtonsVariants({ variant, size, loading: isLoading }),
+        ButtonsVariants({ variant, loading: isLoading }),
         className,
       )}
       disabled={isLoading || props.disabled}
