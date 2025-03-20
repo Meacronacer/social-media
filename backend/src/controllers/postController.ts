@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import PostService from "../services/post.service";
 import { IUser } from "../models/User";
+import { IPost } from "../models/Post";
 
 class PostController {
   async createPost(req: Request, res: Response): Promise<void> {
@@ -94,16 +95,19 @@ class PostController {
 
   async toggleLike(req: Request, res: Response): Promise<void> {
     try {
-      const { postId } = req.params;
-      const userId = String((req.user as IUser)?._id);
-      const success = await PostService.toggleLike(postId, userId);
-      if (!success) {
-        res.status(400).json({ message: "Ошибка" });
-        return;
+      const post = await PostService.toggleLike(
+        req.params.postId,
+        String((req.user as IUser)?._id)
+      );
+
+      if (!post) {
+        res.status(404).json({ message: "Post not found" });
+      } else {
+        res.json(post);
       }
-      res.json({ message: "Лайк обновлён" });
-    } catch (error) {
-      res.status(500).json({ message: "Ошибка сервера" });
+    } catch (err) {
+      console.error("Like error:", err);
+      res.status(500).json({ message: "Server error" });
     }
   }
 }

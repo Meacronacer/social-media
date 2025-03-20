@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 import { setNewUser } from "@/redux/slices/chatSlice";
 import SearchItemSkeleton from "../skeletons/searchItemSkeleton";
 import { IAuthor, Iuser } from "@/@types/user";
+import { useUserActions } from "@/hooks/useUserActions";
 
 const SearchClientPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -37,14 +38,6 @@ const SearchClientPage = () => {
   }, [searchTerm]);
 
   const { data = [], isLoading } = useGetAllUsersQuery(debouncedSearchTerm);
-  const router = useRouter();
-  const dispatch = useDispatch();
-
-  const handleSelectUser = (user: IAuthor) => {
-    dispatch(setNewUser(user));
-    router.push(`/chats`);
-  };
-
   const showLoading = isLoading || isLocalLoading;
 
   return (
@@ -92,7 +85,7 @@ const SearchClientPage = () => {
                   animationFillMode: "both",
                 }}
               >
-                <SearchItem {...user} onSelectUser={handleSelectUser} />
+                <SearchItem {...user} />
               </div>
             ))}
             {debouncedSearchTerm && data?.length === 0 && (

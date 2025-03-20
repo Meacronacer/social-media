@@ -30,21 +30,25 @@ const Comment: React.FC<props> = ({ userId, postAuthorId, comment }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const likeCommentHandler = () => {
-    likeComment(comment._id)
+    likeComment({ commentId: comment._id, postId: comment.post })
       .unwrap()
       .then((res) => console.log(res))
       .catch((err) => console.log(err));
   };
 
   const deleteCommentHandler = () => {
-    deleteComment(comment._id)
+    deleteComment({ commentId: comment._id, postId: comment.post })
       .unwrap()
       .then((res) => console.log(res))
       .catch((err) => console.log(err));
   };
 
   const editCommentHandler = (editedText: string) => {
-    editComment({ commentId: comment._id, text: editedText })
+    editComment({
+      commentId: comment._id,
+      text: editedText,
+      postId: comment.post, // Убедитесь, что comment содержит postId
+    })
       .unwrap()
       .then(() => setIsEditing(false))
       .catch((err) => console.log(err));

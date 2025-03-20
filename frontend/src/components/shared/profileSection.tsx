@@ -7,39 +7,33 @@ import PlusIcon from "@/components/svgs/plus.svg";
 import Skill from "@/components/shared/skill";
 import { useRouter } from "next/navigation";
 import { LinkTo } from "@/utils/links";
-import CreatePostForm from "../forms/PostOrCommentForm";
 import { getProfileUserId } from "@/utils/getProfileUser";
-import { setNewUser } from "@/redux/slices/chatSlice";
-import { useAppDispatch } from "@/hooks/useRedux";
 import ProfileSkeleton from "../skeletons/profileSkeleton";
 import {
   useGetRelationshipStatusQuery,
   useSubscribeMutation,
   useUnSubscribeMutation,
 } from "@/api/subscriptions";
-import { IAuthor } from "@/@types/user";
+import { IAuthor, Iuser } from "@/@types/user";
 import PostsList from "./postsList";
-import { useRef } from "react";
+import { useUserActions } from "@/hooks/useUserActions";
+import PostOrCommentForm from "../forms/PostOrCommentForm";
 
 interface props {
   isOwnPage: boolean;
+  currentUserImg: string | undefined;
 }
 
-const ProfileSection: React.FC<props> = ({ isOwnPage }) => {
+const ProfileSection: React.FC<props> = ({ isOwnPage, currentUserImg }) => {
   const router = useRouter();
-  const user = getProfileUserId(isOwnPage);
-  const dispatch = useAppDispatch();
+  const user: Iuser = getProfileUserId(isOwnPage);
   const [subscribe, { isLoading: subIsLoading }] = useSubscribeMutation();
   const [unSubscribe, { isLoading: unSubIsLoading }] = useUnSubscribeMutation();
-  const { data: related, isLoading: isRloading } =
-    useGetRelationshipStatusQuery(user?._id, {
-      skip: !user?._id || isOwnPage,
-    });
+  const { data: related } = useGetRelationshipStatusQuery(user?._id || "", {
+    skip: !user?._id || isOwnPage,
+  });
 
-  const handleSelectUser = () => {
-    dispatch(setNewUser(user));
-    router.push(LinkTo.chats);
-  };
+  const { handleSelectUser } = useUserActions();
 
   const subscribeHandler = () => {
     if (!related?.isFollowing) {
@@ -76,9 +70,9 @@ const ProfileSection: React.FC<props> = ({ isOwnPage }) => {
                 {user?.first_name} {user?.second_name}
               </h1>
               <div className="flex items-center gap-x-5">
-                <p className="font-bold">Posts 0</p>|
+                <p className="font-bold">Posts {user?.postsCount}</p>|
                 <p className="cursor-pointer font-bold duration-300 hover:text-primary">
-                  Following {user?.following?.length || 0}
+                  Following {user?.followingCount || 0}
                 </p>
                 <Button
                   isLoading={subIsLoading || unSubIsLoading}
@@ -97,7 +91,7 @@ const ProfileSection: React.FC<props> = ({ isOwnPage }) => {
             if (isOwnPage) {
               router.push(LinkTo.settings);
             } else {
-              handleSelectUser();
+              handleSelectUser(user);
             }
           }}
         >
@@ -109,9 +103,9 @@ const ProfileSection: React.FC<props> = ({ isOwnPage }) => {
       <div className="mt-12 flex w-full animate-fade-in gap-x-[64px]">
         {/* posts */}
         <div className="flex w-full max-w-[65%] flex-col">
-          {isOwnPage && <CreatePostForm img={user.img_url} />}
+          {isOwnPage && <PostOrCommentForm />}
 
-          <PostsList userId={user?._id} />
+          <PostsList isOwnPage={isOwnPage} userId={user?._id} />
         </div>
 
         {/* subs */}

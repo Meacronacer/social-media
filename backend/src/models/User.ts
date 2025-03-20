@@ -16,6 +16,8 @@ export interface IUser extends Document {
   chats: Types.ObjectId[];
   followers: Types.ObjectId[];
   following: Types.ObjectId[];
+  postsCount: number;
+  followingCount: number;
 }
 
 const UserSchema = new Schema<IUser>(

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { cn } from "@/utils/twMerge";
 import { formatTimeForChatBody } from "@/utils/formatMessageTimeStamp";
+import { IAuthor } from "@/@types/user";
 
 export interface Message {
   _id: any;
@@ -14,10 +15,7 @@ export interface Message {
 interface MessageBubbleProps {
   message: Message;
   isCurrentUser: boolean;
-  user: {
-    first_name: string | undefined;
-    last_name: string | undefined;
-  };
+  user: Pick<IAuthor, "first_name" | "second_name" | "img_url">;
   showAvatar: boolean;
   showTimestamp: boolean;
 }
@@ -35,13 +33,19 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     >
       <div className="h-8 w-8">
         {!isCurrentUser && showAvatar && (
-          <Image src="/avatar.png" height={32} width={32} alt="avatar" />
+          <Image
+            src={user?.img_url || "/avatar.png"}
+            height={32}
+            width={32}
+            alt="avatar"
+            className="rounded-full"
+          />
         )}
       </div>
       <div className="flex flex-col gap-y-1">
         {showAvatar && (
           <p className={cn("text-[12px]", { "text-right": isCurrentUser })}>
-            {user?.first_name} {user?.last_name}
+            {user?.first_name} {user?.second_name}
           </p>
         )}
         <div
@@ -65,7 +69,13 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         )}
       </div>
       {isCurrentUser && showAvatar && (
-        <Image src="/avatar.png" height={32} width={32} alt="avatar" />
+        <Image
+          src={user?.img_url || "/avatar.png"}
+          height={32}
+          width={32}
+          alt="avatar"
+          className="rounded-full"
+        />
       )}
     </div>
   );

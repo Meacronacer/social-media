@@ -3,6 +3,9 @@ export interface Iuser extends IAuthor {
   description: string;
   skills: string[];
   followers: IAuthor[];
+  following: IAuthor[];
+  postsCount: number;
+  followingCount: number;
 }
 
 export interface IAuthor {

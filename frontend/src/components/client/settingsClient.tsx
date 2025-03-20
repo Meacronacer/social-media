@@ -1,13 +1,14 @@
 "use client";
 import SettingsForm from "@/components/forms/settingsForm";
 import Skill from "@/components/shared/skill";
-import LogoutButton from "@/components/ui/logoutButton";
 import { useAppSelector } from "@/hooks/useRedux";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { useLogoutMutation } from "@/api/auth";
 import { useRouter } from "next/navigation";
 import { LinkTo } from "@/utils/links";
+import Switch from "../ui/switch";
+import { SettingsClientPageSkeleton } from "../skeletons/settingsSkeleton";
 
 const SettingsClientPage = () => {
   const { first_name, second_name, img_url, description, skills } =
@@ -26,8 +27,10 @@ const SettingsClientPage = () => {
     }
   };
 
+  if (!first_name) return <SettingsClientPageSkeleton />;
+
   return (
-    <section className="flex gap-x-10 p-6 pl-12">
+    <section className="flex gap-x-10 bg-black p-6 pl-12">
       <div className="w-[31%]">
         <div className="flex items-center gap-x-6">
           <Image
@@ -44,10 +47,16 @@ const SettingsClientPage = () => {
           </div>
         </div>
 
-        <div className="mt-8 w-full border-b border-dashed border-white"></div>
+        <div className="mb-6 mt-8 w-full border-b border-dashed border-white"></div>
+
+        <div className="flex justify-between gap-x-3">
+          {" "}
+          <p>Hide Notification Messages</p>
+          <Switch />
+        </div>
 
         <div>
-          <span className="mt-8 block text-[18px] font-extrabold">Skills</span>
+          <span className="mt-4 block text-[18px] font-extrabold">Skills</span>
 
           <div className="mt-3 flex gap-1">
             {skills?.length > 0 ? (

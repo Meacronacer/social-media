@@ -11,7 +11,7 @@ export const getProfileUserId = (isOwnPage: boolean) => {
   } else {
     const { userId } = useParams(); // Получаем объект router
     const userIdString = Array.isArray(userId) ? userId[0] : userId || "";
-    const { data } = useGetUserQuery(userIdString);
+    const { data } = useGetUserQuery(userIdString, { skip: !userIdString });
     user = data;
   }
 

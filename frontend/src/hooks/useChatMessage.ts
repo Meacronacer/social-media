@@ -19,7 +19,10 @@ export const useChatMessages = (
   const [otherUserTyping, setOtherUserTyping] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false); // Новое состояние
 
-  const { data, isLoading } = useGetChatMessagesQuery({ chatId, limit: 10 });
+  const { data, isLoading } = useGetChatMessagesQuery({
+    chatId,
+    limit: 10,
+  });
   const [fetchMoreMessages] = useLazyGetChatMessagesQuery();
 
   useEffect(() => {
@@ -28,6 +31,13 @@ export const useChatMessages = (
       setHasMore(data.hasMore);
     }
   }, [data]);
+
+  // useEffect(() => {
+  //   socket?.emit("markAsRead", {
+  //     currentUserId: senderUser._id,
+  //     toUserId: recipientUserId,
+  //   });
+  // }, []);
 
   useEffect(() => {
     socket?.on("receiveMessage", (newMessage: Message) => {
@@ -104,7 +114,7 @@ export const useChatMessages = (
           senderUserId: _id,
           recipientUserId,
           message,
-          user: { first_name, second_name, img_url },
+          user: { _id, first_name, second_name, img_url },
         });
       }
     },

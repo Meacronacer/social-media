@@ -68,7 +68,6 @@ const ChatBody: React.FC<ChatProps> = ({
   useClickOutside([pickerRef, iconRef], () => setShowPicker(false));
 
   const handleEmojiSelect = (emoji: any) => {
-    console.log("Выбран эмодзи:", emoji);
     handleInputChange(emoji.native || emoji.unified); // Используем `native`, а если нет, `unified`
     setShowPicker(false);
   };
@@ -154,9 +153,14 @@ const ChatBody: React.FC<ChatProps> = ({
                       message.sender === currentUser?._id
                         ? {
                             first_name: currentUser.first_name,
-                            last_name: currentUser.second_name,
+                            second_name: currentUser.second_name,
+                            img_url: currentUser.img_url,
                           }
-                        : { first_name: toFirstName, last_name: toLastName }
+                        : {
+                            first_name: toFirstName,
+                            second_name: toLastName,
+                            img_url: toImgUrl,
+                          }
                     }
                   />
                 </div>

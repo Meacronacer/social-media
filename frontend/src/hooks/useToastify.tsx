@@ -5,6 +5,7 @@ import { useRouter } from "next/compat/router";
 import Image from "next/image";
 import { ToastOptions, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useUserActions } from "./useUserActions";
 
 export interface Sender {
   id: string;
@@ -14,6 +15,7 @@ export interface Sender {
 
 const useToastify = () => {
   const router = useRouter();
+  const { handleSelectUser } = useUserActions();
 
   const options: ToastOptions = {
     position: "top-right",
@@ -40,7 +42,7 @@ const useToastify = () => {
     // Можно использовать кастомное содержимое уведомления
     toast.info(
       <div
-        onClick={() => router?.push(LinkTo.chats)}
+        onClick={() => handleSelectUser(sender)}
         className="flex cursor-pointer items-start gap-x-2"
       >
         <Image
@@ -52,7 +54,7 @@ const useToastify = () => {
         />
         <div className="flex flex-col gap-y-1">
           <strong className="text-[14px]">
-            New message from {sender.first_name} {sender.second_name}
+            New message: from {sender.first_name} {sender.second_name}
           </strong>
           <p className="line-clamp-3 text-[12px]">{message}</p>
         </div>
@@ -60,7 +62,7 @@ const useToastify = () => {
       {
         ...options,
         position: "bottom-right", // показываем в правом нижнем углу
-        autoClose: 10000,
+        autoClose: 30000,
         icon: false, // Disable the default icon
       },
     );

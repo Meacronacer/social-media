@@ -1,115 +1,99 @@
-import { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect, useCallback, useState } from "react";
 import { useGetPostsPaginatedQuery } from "@/api/posts";
 import PostSkeleton from "../skeletons/postSkeleton";
 import Post from "./postItem";
-import { IPost } from "@/@types/post";
 
-const PostsList = ({ userId }: { userId: string }) => {
-  const [accumulatedPosts, setAccumulatedPosts] = useState<IPost[]>([]);
-  const [lastCreatedAt, setLastCreatedAt] = useState<string>();
-  const [hasMore, setHasMore] = useState(true);
-  const limit = 5;
+interface props {
+  userId: string | undefined;
+  isOwnPage: boolean;
+}
+
+const PostsList: React.FC<props> = ({ userId, isOwnPage }) => {
+  const limit = 8;
   const containerRef = useRef<HTMLDivElement>(null);
+  const [lastCreatedAt, setLastCreatedAt] = useState<string>();
+  const [trigger, setTrigger] = useState(false);
   const loadingRef = useRef(false);
 
-  const { data: response, isFetching } = useGetPostsPaginatedQuery(
-    { userId, limit, lastCreatedAt },
-    { skip: !userId || !hasMore },
-  );
+  const heightContainer = isOwnPage
+    ? "h-[calc(100dvh-330px)] "
+    : "h-[calc(100dvh-230px)] ";
 
-  // Обработка новых данных
+  const { data, isFetching, isLoading, currentData } =
+    useGetPostsPaginatedQuery(
+      { userId: userId || "", limit, lastCreatedAt },
+      { skip: !userId || !trigger },
+    );
+
+  const posts = currentData?.posts || [];
+  const hasMore = currentData?.hasMore ?? false;
+
+  // Инициализация первой загрузки
   useEffect(() => {
-    if (response) {
-      loadingRef.current = false;
-      setAccumulatedPosts((prev) => {
-        const newPosts = response.posts.filter(
-          (post) => !prev.some((p) => p._id === post._id),
-        );
-        return [...prev, ...newPosts];
-      });
-      setHasMore(response.hasMore);
+    if (userId && !lastCreatedAt) {
+      setLastCreatedAt(new Date().toISOString());
+      setTrigger(true);
     }
-  }, [response]);
+  }, [userId]);
 
-  // Проверка необходимости подгрузки
-  const checkScroll = useCallback(() => {
-    const container = containerRef.current;
-    if (!container || loadingRef.current || !hasMore) return;
-
-    const hasScroll = container.scrollHeight > container.clientHeight;
-    console.log("Scroll check:", {
-      scrollHeight: container.scrollHeight,
-      clientHeight: container.clientHeight,
-      hasScroll,
-    });
-
-    if (!hasScroll && accumulatedPosts.length > 0) {
-      console.log("No scroll - loading more");
-      loadingRef.current = true;
-      const lastPost = accumulatedPosts[accumulatedPosts.length - 1];
-      setLastCreatedAt(lastPost.createdAt);
-    }
-  }, [hasMore, accumulatedPosts]);
-
-  // Автопроверка после каждого обновления постов
-  useEffect(() => {
-    const timer = setTimeout(checkScroll, 100); // Даем время на рендер
-    return () => clearTimeout(timer);
-  }, [accumulatedPosts, checkScroll]);
-
-  // Обработчик скролла
   const loadMore = useCallback(() => {
-    if (loadingRef.current || !hasMore) return;
+    if (isFetching || !hasMore || loadingRef.current) return;
 
     const container = containerRef.current;
-    if (!container) return;
+    if (!container || posts.length === 0) return;
 
     const { scrollTop, scrollHeight, clientHeight } = container;
     const isNearBottom = scrollHeight - (scrollTop + clientHeight) < 300;
 
     if (isNearBottom) {
-      console.log("Scrolled to bottom - loading more");
       loadingRef.current = true;
-      const lastPost = accumulatedPosts[accumulatedPosts.length - 1];
-      setLastCreatedAt(lastPost?.createdAt);
+      const lastPost = posts[posts.length - 1];
+      setLastCreatedAt(lastPost.createdAt);
     }
-  }, [hasMore, accumulatedPosts]);
+  }, [isFetching, hasMore, posts]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    container.addEventListener("scroll", loadMore);
-    return () => container.removeEventListener("scroll", loadMore);
+    const debouncedScroll = debounce(loadMore, 100);
+    container.addEventListener("scroll", debouncedScroll);
+    return () => container.removeEventListener("scroll", debouncedScroll);
   }, [loadMore]);
 
-  // Первичная загрузка
   useEffect(() => {
-    if (accumulatedPosts.length === 0 && !isFetching) {
-      checkScroll();
-    }
-  }, [accumulatedPosts, isFetching]);
+    if (data) loadingRef.current = false;
+  }, [data]);
 
   return (
     <div
       ref={containerRef}
-      className="flex h-[calc(100dvh-350px)] flex-col gap-y-3 overflow-y-auto pr-2 scrollbar-thin scrollbar-webkit"
+      className={`flex ${heightContainer} flex-col gap-y-3 overflow-y-auto pr-2 scrollbar-thin scrollbar-webkit`}
     >
-      {accumulatedPosts.map((post) => (
+      {posts.map((post) => (
         <Post key={post._id} {...post} />
       ))}
 
-      {isFetching && <PostSkeleton />}
+      {isLoading && <PostSkeleton />}
 
-      {!hasMore && accumulatedPosts.length > 0 && (
+      {!hasMore && posts.length > 0 && (
         <p className="py-4 text-center text-gray-500">No more posts</p>
       )}
 
-      {!hasMore && accumulatedPosts.length === 0 && (
+      {!hasMore && posts.length === 0 && (
         <p className="mt-4 text-center text-gray-500">No posts found</p>
       )}
     </div>
   );
+};
+
+// Дебаунс функция
+const debounce = (func: () => void, delay: number) => {
+  let timeoutId: NodeJS.Timeout;
+  return () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(func, delay);
+  };
 };
 
 export default PostsList;

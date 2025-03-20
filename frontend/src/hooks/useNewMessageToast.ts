@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { useGetUnreadMessagesCountQuery } from "@/api/chats";
 import { useSocket } from "@/providers/socketIoProvider";
@@ -14,7 +15,16 @@ const useUnreadCount = () => {
   const pathname = usePathname();
   const { toastNewMessage } = useToastify();
 
-  // Обновляем счётчик, если данные из запроса изменились
+  // Функция для проверки состояния уведомлений
+  const areNotificationsEnabled = () => {
+    try {
+      return localStorage.getItem("switchState") === "true";
+    } catch (error) {
+      console.error("Error reading localStorage:", error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     if (data) {
       setUnread(data.totalUnread);
@@ -33,12 +43,12 @@ const useUnreadCount = () => {
       newMessage: Message;
       diff: number;
     }) => {
-      // Если пользователь не находится на странице чатов – показываем уведомление
+      // Проверяем состояние переключателя перед обработкой
+
       if (diff !== undefined) {
         setUnread((prev) => Math.max(0, prev + diff));
       } else if (newMessage) {
-        // Если пришло новое сообщение и пользователь не в чате – показываем уведомление
-        if (!pathname.startsWith(LinkTo.chats)) {
+        if (!pathname.startsWith(LinkTo.chats) && !areNotificationsEnabled()) {
           toastNewMessage(user, newMessage.text);
         }
         setUnread((prev) => prev + 1);

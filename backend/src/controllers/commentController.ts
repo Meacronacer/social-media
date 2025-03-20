@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import CommentService from "../services/comment.Service";
+import CommentService from "../services/comment.service";
 import { IUser } from "../models/User";
 
 class CommentController {
@@ -10,8 +10,7 @@ class CommentController {
   ): Promise<void> {
     try {
       const { postId, text, parentCommentId } = req.body;
-      //@ts-ignore
-      const userId = req.user._id; // Авторизованный пользователь
+      const userId = (req.user as IUser)?._id; // Авторизованный пользователь
 
       const comment = await CommentService.createComment(
         userId,
@@ -28,8 +27,7 @@ class CommentController {
   async deleteComment(req: Request, res: Response): Promise<void> {
     try {
       const { commentId } = req.params;
-      //@ts-ignore
-      const userId = req.user?._id;
+      const userId = (req.user as IUser)?._id;
       const comment = await CommentService.deleteComment(commentId, userId);
       res.json(comment);
     } catch (error) {
@@ -47,8 +45,7 @@ class CommentController {
     try {
       const { commentId } = req.params;
       const { text } = req.body;
-      //@ts-ignore
-      const userId = req.user._id;
+      const userId = (req.user as IUser)?._id;
 
       if (!userId || !text) {
         res.status(400).json({ message: "Неверные данные" });
@@ -64,7 +61,7 @@ class CommentController {
         res.status(403).json({ message: "Редактирование запрещено" });
         return;
       }
-      res.json(updatedComment);
+      res.status(200).json(updatedComment);
     } catch (error) {
       next(error);
     }

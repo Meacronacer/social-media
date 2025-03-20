@@ -8,6 +8,7 @@ interface PickerPosition {
 interface UseEmojiPickerPositionOptions {
   scaleFactor?: number; // например, 0.8
   pickerHeight?: number; // базовая (unscaled) высота пикера, например, 300
+  newTopMargin?: number;
   adjustments?: {
     // корректирующие отступы (например, для смещения)
     left?: number;
@@ -22,6 +23,7 @@ const useEmojiPickerPosition = (
   const {
     scaleFactor = 1,
     pickerHeight = 300,
+    newTopMargin = 135,
     adjustments = {},
   } = options || {};
   const [pickerPosition, setPickerPosition] = useState<PickerPosition>({
@@ -47,7 +49,7 @@ const useEmojiPickerPosition = (
             effectivePickerHeight +
             window.scrollY +
             (adjustments.top || 0) -
-            135;
+            newTopMargin;
         }
         setPickerPosition({ top: newTop, left });
         setShowPicker((prev) => !prev);

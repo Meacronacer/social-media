@@ -69,13 +69,12 @@ interface Inputs {
   avatar?: File | null;
 }
 
-const SettingsForm: React.FC<Omit<Iuser, "_id" | "email" | "followers">> = ({
-  first_name,
-  second_name,
-  description,
-  skills,
-  img_url,
-}) => {
+const SettingsForm: React.FC<
+  Pick<
+    Iuser,
+    "first_name" | "second_name" | "description" | "skills" | "img_url"
+  >
+> = ({ first_name, second_name, description, skills, img_url }) => {
   const {
     register,
     handleSubmit,
@@ -263,11 +262,6 @@ const SettingsForm: React.FC<Omit<Iuser, "_id" | "email" | "followers">> = ({
         />
 
         <div className="mt-[100px] flex items-center justify-between">
-          <div className="flex items-center gap-x-5">
-            <div className="cursor-pointer rounded-[2px] border-[1px] p-[14px] hover:bg-active">
-              <Image src="/backet.svg" height={16} width={16} alt="clear" />
-            </div>
-          </div>
           <div className="flex items-center gap-x-5">
             <Button
               variant="secondary"

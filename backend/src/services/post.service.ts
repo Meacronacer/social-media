@@ -6,10 +6,17 @@ import { FilterQuery, ObjectId, Types } from "mongoose";
 class PostService {
   // Создание поста
   async createPost(authorId: string | ObjectId, text: string): Promise<IPost> {
+    // Создаём пост
     const post = await PostModel.create({ author: authorId, text });
+    // Добавляем пост в список пользователя
     await UserModel.findByIdAndUpdate(authorId, { $push: { posts: post._id } });
-    return post;
+    // Выполняем populate для поля author (получаем только необходимые поля)
+    const populatedPost = await PostModel.findById(post._id)
+      .populate('author', 'first_name second_name img_url')
+      .exec();
+    return populatedPost as IPost;
   }
+  
 
   // Получение всех постов с автором и комментариями
   // Возвращает посты автора, созданные раньше, чем lastCreatedAt (если он передан)
@@ -73,19 +80,31 @@ class PostService {
   }
 
   // Лайк/анлайк поста
-  async toggleLike(postId: string, userId: string): Promise<boolean> {
+  // PostService.ts
+  async toggleLike(postId: string, userId: string): Promise<IPost | null> {
     const post = await PostModel.findById(postId);
-    if (!post) return false;
 
-    const likedIndex = post.likes.findIndex((id) => id.toString() === userId);
-    if (likedIndex > -1) {
-      post.likes.splice(likedIndex, 1);
+    if (!post) return null;
+
+    const userObjectId = new Types.ObjectId(userId);
+    const isLiked = post.likes.some((id) => id.equals(userObjectId));
+
+    if (isLiked) {
+      post.likes = post.likes.filter((id) => !id.equals(userObjectId));
     } else {
-      post.likes.push(new Types.ObjectId(userId));
+      post.likes.push(userObjectId);
     }
 
     await post.save();
-    return true;
+
+    const updatedPost = await PostModel.findById(postId)
+      .populate("author", "first_name second_name img_url")
+      .populate({
+        path: "comments",
+        populate: { path: "author", select: "first_name second_name img_url" },
+      });
+
+    return updatedPost;
   }
 }
 

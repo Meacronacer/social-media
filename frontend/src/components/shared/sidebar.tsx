@@ -124,12 +124,16 @@ const SideBar: React.FC = () => {
             width={32}
             height={32}
             alt="avatar"
-            src={user?.img_url || "/subs.png"}
+            src={user?.img_url || "/avatar.png"}
             className="h-8 w-8 rounded-[50%]"
           />
-          <span className="lowercase">
-            {user?.first_name && `${user?.first_name}.${user?.second_name}`}
-          </span>
+          {isLoading ? (
+            <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+          ) : (
+            <span className="lowercase">
+              {`${user?.first_name}.${user?.second_name}`}
+            </span>
+          )}
         </div>
         <SettingsIcon />
       </Link>

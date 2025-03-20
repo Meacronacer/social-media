@@ -5,7 +5,7 @@ import Post from "../models/Post";
 class CommentService {
   // Создание комментария или ответа на комментарий
   async createComment(
-    userId: string,
+    userId: string | ObjectId,
     postId: string,
     text: string,
     parentCommentId?: string
@@ -31,10 +31,18 @@ class CommentService {
       await post.save();
     }
 
-    return newComment;
+    // Выполняем populate для поля author, чтобы вернуть данные пользователя
+    const populatedComment = await Comment.findById(newComment._id)
+      .populate("author", "first_name second_name img_url")
+      .exec();
+
+    return populatedComment;
   }
 
-  async deleteComment(commentId: string, userId: string): Promise<boolean> {
+  async deleteComment(
+    commentId: string,
+    userId: string | ObjectId
+  ): Promise<boolean> {
     const comment = await Comment.findById(commentId);
     if (!comment) return false;
 
@@ -64,7 +72,11 @@ class CommentService {
     });
   }
 
-  async updateComment(commentId: string, userId: string, text: string) {
+  async updateComment(
+    commentId: string,
+    userId: string | ObjectId,
+    text: string
+  ) {
     const comment = await Comment.findById(commentId);
     if (!comment) return null;
     // Редактировать может только автор комментария

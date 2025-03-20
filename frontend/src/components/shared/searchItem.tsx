@@ -7,6 +7,7 @@ import EnterIcon from "@/components/svgs/enter.svg";
 import ArrowCornerIcon from "@/components/svgs/arrow-corner.svg";
 import { useRouter } from "next/navigation";
 import { IAuthor, Iuser } from "@/@types/user";
+import { useUserActions } from "@/hooks/useUserActions";
 
 export interface SearchItemprops extends Iuser {
   onSelectUser?: (user: IAuthor) => void; // Новый пропс
@@ -22,6 +23,8 @@ const SearchItem: React.FC<SearchItemprops> = ({
   onSelectUser, // Деструктурируем новый пропс
 }) => {
   const router = useRouter();
+  const { handleSelectUser } = useUserActions();
+
   return (
     <div className="flex h-[160px] w-full animate-fade-in items-center justify-between gap-x-[100px] border-2 px-6 py-10">
       <div className="flex items-center gap-x-5">
@@ -67,8 +70,8 @@ const SearchItem: React.FC<SearchItemprops> = ({
         <Button
           className="whitespace-nowrap"
           onClick={() => {
-            if (onSelectUser) {
-              onSelectUser({
+            if (_id && first_name && second_name) {
+              handleSelectUser({
                 _id,
                 first_name,
                 second_name,

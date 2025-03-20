@@ -14,13 +14,11 @@ import useEmojiPickerPosition from "@/hooks/useEmojiPickerPosition";
 
 interface Props {
   postId?: string;
-  img: string | undefined;
   border?: string;
   isComment?: boolean;
 }
 
-const CreatePostForm: React.FC<Props> = ({
-  img,
+const PostOrCommentForm: React.FC<Props> = ({
   postId,
   border = "border-2",
   isComment = false,
@@ -28,7 +26,9 @@ const CreatePostForm: React.FC<Props> = ({
   const [text, setText] = useState<string>("");
   const [createPost] = useCreatePostMutation();
   const [createComment] = useCreateCommentMutation();
-  const userId = useAppSelector((state) => state.authSlice.user._id);
+  const { _id: userId, img_url } = useAppSelector(
+    (state) => state.authSlice.user,
+  );
 
   // Закрываем пикер при клике вне его области
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -78,7 +78,7 @@ const CreatePostForm: React.FC<Props> = ({
       className={`mb-4 flex h-[76px] items-center gap-x-3 ${border} border-white bg-black p-[16px]`}
     >
       <Image
-        src={img || "/avatar.png"}
+        src={img_url || "/avatar.png"}
         className="h-8 w-8 rounded-[50%]"
         width={32}
         height={32}
@@ -123,4 +123,4 @@ const CreatePostForm: React.FC<Props> = ({
   );
 };
 
-export default CreatePostForm;
+export default PostOrCommentForm;

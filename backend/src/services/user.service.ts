@@ -2,6 +2,7 @@ import UserModel, { IUser } from "../models/User";
 import { v4 as uuidv4 } from "uuid";
 import { ObjectId, Types } from "mongoose";
 import AvatarService from "./avatar.service";
+import PostModel from "../models/Post";
 
 interface UpdateProfileData {
   first_name: string;
@@ -29,17 +30,27 @@ class UserService {
     if (!Types.ObjectId.isValid(id)) {
       return null;
     }
+    // Обратите внимание: здесь мы не исключаем following
     const user = await UserModel.findById(new Types.ObjectId(id))
       .select(
-        "-password -isActivated -activationLink -following -roles -posts -chats -__v -updatedAt"
+        "-password -isActivated -activationLink -roles -posts -chats -__v -updatedAt"
       )
       .populate({
         path: "followers",
-        select: "first_name second_name img_url", // Поля, которые нужно получить
-        options: { limit: 6 }, // Ограничение количества подписчиков
+        select: "first_name second_name img_url", // поля для подписчиков
+        options: { limit: 6 },
       })
       .lean();
-    return user as IUser;
+
+    if (user) {
+      // Подсчитываем количество постов, где автор равен найденному пользователю
+      const postsCount = await PostModel.countDocuments({ author: user._id });
+      // Количество подписок определяется длиной массива following
+      const followingCount = user.following ? user.following.length : 0;
+      return { ...user, postsCount, followingCount };
+    }
+
+    return user;
   }
 
   async findOrCreateUser(profile: any) {

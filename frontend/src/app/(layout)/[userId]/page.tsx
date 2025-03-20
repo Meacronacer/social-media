@@ -1,4 +1,4 @@
-import ProfileSection from "@/components/shared/profileSection";
+import ProfileClientPage from "@/components/client/profileClient";
 
 export const metadata = {
   title: "Profile",
@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 const ProfilePage = () => {
-  return <ProfileSection isOwnPage={false} />;
+  return <ProfileClientPage isOwnPage={false} />;
 };
 
 export default ProfilePage;

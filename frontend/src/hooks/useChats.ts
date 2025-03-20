@@ -28,6 +28,7 @@ export const useChats = (debouncedSearchTerm: string) => {
     data = [],
     isLoading: isChatsLoading, // Переименуем для ясности
     isSuccess,
+    refetch,
     isFetching, // Добавляем отслеживание состояния запроса
   } = useGetAllActiveChatsQuery(debouncedSearchTerm);
 
@@ -91,6 +92,7 @@ export const useChats = (debouncedSearchTerm: string) => {
       });
     });
 
+    refetch();
     return () => {
       socket?.off("updateSidebar");
     };
