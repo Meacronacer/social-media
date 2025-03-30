@@ -171,3 +171,7 @@
 {"level":"info","message":"Socket cWuiR9txzebaLYZaAAAG left room 679023919433780b2ba812ee_67d4890afcf19a7923588962","timestamp":"2025-03-30T00:27:06.473Z"}
 {"level":"info","message":"Socket 1gc7CIhMeb8bGdIFAAAD left room 679023919433780b2ba812ee_67d4890afcf19a7923588962","timestamp":"2025-03-30T00:27:38.657Z"}
 {"level":"info","message":"User disconnected: cWuiR9txzebaLYZaAAAG","timestamp":"2025-03-30T00:47:54.857Z"}
+{"level":"info","message":"MongoDB connected successfully","timestamp":"2025-03-30T02:18:19.453Z"}
+{"level":"info","message":"Connected to MongoDB (development environment)","timestamp":"2025-03-30T02:18:19.459Z"}
+{"level":"info","message":"Server running in development mode on port 8000","timestamp":"2025-03-30T02:18:19.471Z"}
+{"level":"warn","message":"MongoDB disconnected","timestamp":"2025-03-30T02:18:21.328Z"}

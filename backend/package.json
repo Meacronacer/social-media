@@ -4,7 +4,8 @@
   "description": "node js backend for tik-talk web app",
   "main": "index.ts",
   "scripts": {
-    "start": "node index.ts",
+    "build": "tsc",
+    "start": "node ./dist/index.js",
     "dev": "nodemon ./src/index.ts"
   },
   "author": "Ivan Popovych <itanmare@gmail.com>",
