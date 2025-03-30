@@ -1,6 +1,5 @@
 import { createApp } from "./app";
 import { config } from "./config/env";
-import { runInCluster } from "./utils/cluster";
 import { connectDatabase } from "./config/database";
 import http from "http";
 import { createSocketServer } from "./socket";
@@ -19,7 +18,7 @@ const startServer = async () => {
     createSocketServer(server);
 
     // Server start
-    server.listen(config.PORT, () => {
+    server.listen(config.PORT, "0.0.0.0", () => {
       logger.info(
         `Server running in ${config.NODE_ENV} mode on port ${config.PORT}`
       );
@@ -36,5 +35,4 @@ const startServer = async () => {
   }
 };
 
-// Запуск в кластере для продакшена
-runInCluster(startServer);
+startServer();

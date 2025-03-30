@@ -9,7 +9,7 @@ dotenv.config({
 });
 
 export const config = {
-  PORT: process.env.PORT || 8000,
+  PORT: Number(process.env.PORT) || 8000,
   MONGODB_URI: process.env.MONGODB_URI || "",
   CLIENT_URL: process.env.CLIENT_URL || "http://localhost:3000",
   NODE_ENV: process.env.NODE_ENV || "development",
