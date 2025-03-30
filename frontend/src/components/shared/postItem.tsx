@@ -3,54 +3,57 @@ import Image from "next/image";
 import CommentIcon from "@/components/svgs/comments.svg";
 import LikeIcon from "@/components/svgs/like.svg";
 import Comment from "./comment";
-import EditIcon from "@/components/svgs/post-edit.svg";
-import { memo, useRef, useState } from "react";
+import { memo, useState } from "react";
 import { cn } from "@/utils/twMerge";
-import { useClickOutside } from "@/hooks/useClickOutside";
 import CreatePostForm from "../forms/PostOrCommentForm";
 import { formatMessageTimestamp } from "@/utils/formatMessageTimeStamp";
 import {
   useDeletePostMutation,
   useEditPostMutation,
-  useGetPostsPaginatedQuery,
   useLikePostMutation,
-} from "@/api/posts";
+} from "@/api/postsApi";
 import { useAppSelector } from "@/hooks/useRedux";
 import Popup from "./popup";
 import EditText from "./editText";
 import { IPost } from "@/@types/post";
 
-const Post: React.FC<IPost> = memo(
+const PostItem: React.FC<IPost> = memo(
   ({ _id, author, text, comments, likes, createdAt }) => {
     const [showComments, setShowComments] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
     const userId = useAppSelector((state) => state.authSlice.user._id);
-    const postIsLikedByUser = likes.includes(userId);
+    const postIsLikedByUser = likes?.includes(userId);
 
     const [likePost] = useLikePostMutation();
     const [deletePost] = useDeletePostMutation();
     const [editPost, { isLoading }] = useEditPostMutation();
 
     const likePostHandler = () => {
-      likePost(_id)
-        .unwrap()
-        .catch((err) => console.log(err));
+      if (author._id) {
+        likePost({ postId: _id, profileId: author._id })
+          .unwrap()
+          .catch((err) => console.log(err));
+      }
     };
 
     const deletePostHandler = () => {
-      deletePost(_id)
-        .unwrap()
-        .catch((err) => console.log(err));
+      if (author._id) {
+        deletePost({ postId: _id, profileId: author._id })
+          .unwrap()
+          .catch((err) => console.log(err));
+      }
     };
 
     const editPostHandler = (editedText: string) => {
-      editPost({ postId: _id, text: editedText })
-        .unwrap()
-        .then(() => {
-          setIsEditing(false);
-        })
-        .catch((err) => console.log(err));
+      if (author._id) {
+        editPost({ postId: _id, text: editedText, profileId: author._id })
+          .unwrap()
+          .then(() => {
+            setIsEditing(false);
+          })
+          .catch((err) => console.log(err));
+      }
     };
 
     return (
@@ -174,4 +177,6 @@ const Post: React.FC<IPost> = memo(
   },
 );
 
-export default Post;
+export default PostItem;
+
+PostItem.displayName = "PostItem";

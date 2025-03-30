@@ -1,7 +1,5 @@
 "use client";
 import { Iuser } from "@/@types/user";
-import { LinkTo } from "@/utils/links";
-import { useRouter } from "next/compat/router";
 import Image from "next/image";
 import { ToastOptions, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -14,7 +12,6 @@ export interface Sender {
 }
 
 const useToastify = () => {
-  const router = useRouter();
   const { handleSelectUser } = useUserActions();
 
   const options: ToastOptions = {
@@ -53,9 +50,10 @@ const useToastify = () => {
           alt="user"
         />
         <div className="flex flex-col gap-y-1">
-          <strong className="text-[14px]">
-            New message: from {sender.first_name} {sender.second_name}
-          </strong>
+          <p className="text-[14px] font-medium">
+            <span className="text-primary">New message from:</span>{" "}
+            {sender.first_name} {sender.second_name}
+          </p>
           <p className="line-clamp-3 text-[12px]">{message}</p>
         </div>
       </div>,

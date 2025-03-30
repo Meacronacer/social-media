@@ -11,12 +11,11 @@ import SettingsIcon from "@/components/svgs/settings.svg";
 import SubscriptionItem from "./subscriptionItem";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 import { LinkTo } from "@/utils/links";
-import { useGetMeQuery } from "@/api/user";
+import { useGetMeQuery } from "@/api/userApi";
 import { setUser } from "@/redux/slices/authSlice";
 import { useEffect } from "react";
-import useNewMessageToast from "@/hooks/useNewMessageToast";
-import { useGetUnreadMessagesCountQuery } from "@/api/chats";
 import SubscriptionItemSkeleton from "../skeletons/subscriptionsItemSkeleton";
+import useUnreadCount from "@/hooks/useNewMessageToast";
 
 const nav = [
   { image: <HomeIcon />, label: "Profile", link: LinkTo.home },
@@ -36,7 +35,9 @@ const SideBar: React.FC = () => {
     }
   }, [isSuccess, user, dispatch]);
 
-  const totalUnreadMessagesCount = useNewMessageToast();
+  useUnreadCount();
+
+  const globalUnread = useAppSelector((state) => state.chatSlice.totalUnread);
 
   return (
     <aside className="fixed flex h-screen w-full max-w-[300px] flex-col justify-between gap-y-5 border-r border-white/20 p-3">
@@ -69,9 +70,9 @@ const SideBar: React.FC = () => {
                   {item.label}
                 </Link>
                 {"/" + item.label.toLowerCase() === LinkTo.chats &&
-                  totalUnreadMessagesCount > 0 && (
+                  globalUnread > 0 && (
                     <div className="h-[18px] w-[26px] bg-primary text-center text-[12px] font-bold text-black">
-                      {totalUnreadMessagesCount}
+                      {globalUnread}
                     </div>
                   )}
               </li>
@@ -101,7 +102,7 @@ const SideBar: React.FC = () => {
 
         {user?.followers && user?.followers?.length > 0 && (
           <div
-            onClick={() => router.push(LinkTo.subscribers)}
+            onClick={() => router.push(`${LinkTo.subscribers}/${user._id}`)}
             className="group mt-5 flex cursor-pointer items-center gap-x-3 px-4 hover:text-primary"
           >
             <span className="text-[12px] font-medium">All Followers</span>
@@ -131,7 +132,7 @@ const SideBar: React.FC = () => {
             <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
           ) : (
             <span className="lowercase">
-              {`${user?.first_name}.${user?.second_name}`}
+              {user?.first_name && `${user?.first_name}.${user?.second_name}`}
             </span>
           )}
         </div>

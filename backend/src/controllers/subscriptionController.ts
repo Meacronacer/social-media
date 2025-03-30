@@ -1,7 +1,6 @@
 import { IUser } from "./../models/User";
 import { Request, Response, NextFunction } from "express";
 import SubscriptionService from "../services/subscriptions.service";
-import userService from "../services/user.service";
 
 class SubscriptionController {
   async subscribe(req: Request, res: Response, next: NextFunction) {

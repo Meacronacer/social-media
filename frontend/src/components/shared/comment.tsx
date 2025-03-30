@@ -1,4 +1,3 @@
-import { IAuthor } from "@/@types/user";
 import { formatMessageTimestamp } from "@/utils/formatMessageTimeStamp";
 import Image from "next/image";
 import LikeIcon from "@/components/svgs/like.svg";
@@ -6,7 +5,7 @@ import {
   useDeleteCommentMutation,
   useEditCommentMutation,
   useLikeCommentMutation,
-} from "@/api/comment";
+} from "@/api/commentApi";
 import { cn } from "@/utils/twMerge";
 import Popup from "./popup";
 import { useState } from "react";

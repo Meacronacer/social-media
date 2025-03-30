@@ -1,16 +1,13 @@
 "use client";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useState } from "react";
 import Image from "next/image";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import EnterIcon from "../svgs/enter.svg";
-import { useCreatePostMutation } from "@/api/posts";
-import { useCreateCommentMutation } from "@/api/comment";
+import { useCreatePostMutation } from "@/api/postsApi";
+import { useCreateCommentMutation } from "@/api/commentApi";
 import { useAppSelector } from "@/hooks/useRedux";
-import EmojiPicker from "../shared/emojiPicker";
-import Portal from "../shared/portal"; // Компонент портала
-import { useClickOutside } from "@/hooks/useClickOutside";
-import useEmojiPickerPosition from "@/hooks/useEmojiPickerPosition";
+import EmojiPickerWrapper from "../shared/emojiPickerWrapper";
 
 interface Props {
   postId?: string;
@@ -24,37 +21,20 @@ const PostOrCommentForm: React.FC<Props> = ({
   isComment = false,
 }) => {
   const [text, setText] = useState<string>("");
-  const [createPost] = useCreatePostMutation();
-  const [createComment] = useCreateCommentMutation();
+  const [createPost, { isLoading: postLoading }] = useCreatePostMutation();
+  const [createComment, { isLoading: commentLoading }] =
+    useCreateCommentMutation();
   const { _id: userId, img_url } = useAppSelector(
     (state) => state.authSlice.user,
   );
 
-  // Закрываем пикер при клике вне его области
-  const pickerRef = useRef<HTMLDivElement>(null);
-  const iconRef = useRef<HTMLImageElement>(null);
-
-  // Используем хук с нужными настройками:
-  // scaleFactor 0.8, pickerHeight 300, и корректирующие отступы для точного позиционирования
-  const { pickerPosition, showPicker, setShowPicker, handleEmojiIconClick } =
-    useEmojiPickerPosition(iconRef, {
-      // Передаем ref в хук
-      scaleFactor: 0.8,
-      pickerHeight: 300,
-      adjustments: { left: -285, top: -30 },
-    });
-
-  useClickOutside([pickerRef, iconRef], () => setShowPicker(false));
-
-  const handleEmojiSelect = (emoji: any) => {
-    setText((prev) => prev + emoji.native);
-    setShowPicker(false);
-  };
-
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (!userId) return;
+
     if (text) {
-      if (isComment) {
+      if (isComment && postId && userId) {
         createComment({
           userId,
           postId,
@@ -62,12 +42,12 @@ const PostOrCommentForm: React.FC<Props> = ({
         })
           .unwrap()
           .then(() => setText(""))
-          .catch((err) => console.log(err));
+          .catch(() => console.log());
       } else {
-        createPost({ text })
+        createPost({ text, profileId: userId })
           .unwrap()
           .then(() => setText(""))
-          .catch((err) => console.log(err));
+          .catch(() => console.log());
       }
     }
   };
@@ -91,34 +71,15 @@ const PostOrCommentForm: React.FC<Props> = ({
         placeholder={isComment ? "Write a comment..." : "Write a post..."}
       />
       <div className="relative flex h-10 w-10 cursor-pointer items-center justify-center duration-300 hover:bg-active">
-        <Image
-          ref={iconRef}
-          onClick={handleEmojiIconClick}
-          width={24}
-          height={24}
-          alt="emoji"
-          src="/smile.svg"
-        />
+        <EmojiPickerWrapper handleInputChange={setText} />
       </div>
-      <Button type="submit" className="w-[44px] justify-center p-[14px]">
+      <Button
+        disabled={postLoading || commentLoading}
+        type="submit"
+        className="w-[44px] justify-center p-[14px]"
+      >
         <EnterIcon />
       </Button>
-      {showPicker && (
-        <Portal>
-          <div
-            ref={pickerRef} // Добавьте эту строку
-            style={{
-              position: "absolute",
-              top: pickerPosition.top,
-              left: pickerPosition.left,
-              zIndex: 1000,
-              transform: "scale(0.8)",
-            }}
-          >
-            <EmojiPicker onSelect={handleEmojiSelect} />
-          </div>
-        </Portal>
-      )}
     </form>
   );
 };

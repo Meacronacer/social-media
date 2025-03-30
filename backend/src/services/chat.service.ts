@@ -114,8 +114,6 @@ class ChatService {
     lastMessageId?: string,
     limit: number = 20
   ) {
-    console.log("Fetching messages:", { chatId, lastMessageId, limit });
-
     // Находим чат, чтобы получить участников
     const chat = await Chat.findById(chatId).lean();
     if (!chat) {

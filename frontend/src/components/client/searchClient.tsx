@@ -1,44 +1,57 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
-import { Input } from "@/components/ui/input";
-import SearchIcon from "@/components/svgs/search.svg";
-import SearchItem from "@/components/shared/searchItem";
-import { useGetAllUsersQuery } from "@/api/user";
-import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { setNewUser } from "@/redux/slices/chatSlice";
+import { useEffect, useRef, useState } from "react";
+import { useGetAllUsersQuery } from "@/api/userApi";
+import { useDebounce } from "@/hooks/useDebounce"; // Добавьте throttle хук
+import SearchItem from "../shared/searchItem";
 import SearchItemSkeleton from "../skeletons/searchItemSkeleton";
-import { IAuthor, Iuser } from "@/@types/user";
-import { useUserActions } from "@/hooks/useUserActions";
+import { Input } from "../ui/input";
+import SearchIcon from "@/components/svgs/search.svg";
+import { useThrottle } from "@/hooks/useThrottle";
+
+const SCROLL_THRESHOLD = 500;
+const PAGE_LIMIT = 10;
 
 const SearchClientPage = () => {
+  const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [isLocalLoading, setIsLocalLoading] = useState(false);
-  const timeoutRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const scrollPosition = useRef(0);
+  const { debouncedValue, isDebouncing: isLocalLoading } = useDebounce(
+    searchTerm,
+    1000,
+  );
 
-  useEffect(() => {
-    setIsLocalLoading(true);
+  const { data, isLoading, isFetching } = useGetAllUsersQuery({
+    search: debouncedValue,
+    page,
+    limit: PAGE_LIMIT,
+  });
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+  // Сбрасываем страницу при изменении поиска
+  useEffect(() => setPage(1), [debouncedValue]);
+
+  // Оптимизированный обработчик скролла
+  const handleScroll = useThrottle(() => {
+    const container = containerRef.current;
+    if (!container || isFetching) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const currentPosition = scrollHeight - (scrollTop + clientHeight);
+
+    if (currentPosition < SCROLL_THRESHOLD && data?.hasMore) {
+      scrollPosition.current = scrollTop;
+      setPage((prev) => prev + 1);
     }
+  }, 200);
 
-    timeoutRef.current = window.setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-      setIsLocalLoading(false);
-    }, 1000);
+  // Восстановление позиции скролла после загрузки
+  useEffect(() => {
+    if (!isFetching && containerRef.current) {
+      containerRef.current.scrollTop = scrollPosition.current;
+    }
+  }, [isFetching]);
 
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-    };
-  }, [searchTerm]);
-
-  const { data = [], isLoading } = useGetAllUsersQuery(debouncedSearchTerm);
-  const showLoading = isLoading || isLocalLoading;
+  const showLoader = isLocalLoading || isLoading;
 
   return (
     <section className="p-6">
@@ -63,37 +76,33 @@ const SearchClientPage = () => {
           )}
         </div>
       </div>
+      <div
+        ref={containerRef}
+        className="mt-5 h-[calc(100vh_-_140px)] overflow-y-auto pr-2 scrollbar-thin scrollbar-webkit"
+        onScroll={handleScroll}
+      >
+        {/* Основной контент */}
+        <div className="flex flex-col gap-y-2">
+          {data?.users?.map((user) => <SearchItem key={user._id} {...user} />)}
+        </div>
 
-      <div className="mt-5 flex h-[calc(100vh_-_140px)] flex-col overflow-y-auto pr-2 scrollbar-thin scrollbar-webkit">
-        {showLoading ? (
-          <div className="flex animate-fade-in flex-col gap-y-2">
-            {[1, 2].map((i) => (
-              <SearchItemSkeleton
-                key={i}
-                style={{ animationDelay: `${i * 0.15}s` }}
-              />
-            ))}
+        {/* Индикатор загрузки */}
+        {showLoader && page === 1 && (
+          <div className="mt-4 flex flex-col gap-y-2">
+            {Array(4)
+              .fill(null)
+              .map((_, i) => (
+                <SearchItemSkeleton
+                  key={i}
+                  style={{ animationDelay: `${i * 0.1}s` }}
+                />
+              ))}
           </div>
-        ) : (
-          <div className="flex animate-fade-in flex-col gap-y-2">
-            {data?.map((user: Iuser, index: number) => (
-              <div
-                key={user._id}
-                className="animate-fade-in"
-                style={{
-                  animationDelay: `${index * 0.1}s`,
-                  animationFillMode: "both",
-                }}
-              >
-                <SearchItem {...user} />
-              </div>
-            ))}
-            {debouncedSearchTerm && data?.length === 0 && (
-              <p className="animate-fade-in text-[20px]">
-                No users were found matching your request...
-              </p>
-            )}
-          </div>
+        )}
+
+        {/* Пустой результат */}
+        {!isFetching && data?.users?.length === 0 && (
+          <p className="text-center text-xl">No users found...</p>
         )}
       </div>
     </section>

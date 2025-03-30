@@ -1,23 +1,6 @@
+import { Ichat } from "@/@types/chat";
+import { IMessage } from "@/@types/message";
 import { BaseApi, baseHeadersOptions } from "@/utils/baseFetch";
-
-export interface Ichat {
-  is_active: boolean;
-  lastMessage: {
-    sender: string;
-    recipient: string;
-    _id: string;
-    text: string;
-    timestamp: string;
-    status: string;
-  };
-  participants: {
-    _id: string;
-    first_name: string;
-    second_name: string;
-    img_url: string | undefined;
-  };
-  unreadMessages: Object | number;
-}
 
 export const chatsApi = BaseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -28,7 +11,10 @@ export const chatsApi = BaseApi.injectEndpoints({
         headers: baseHeadersOptions,
       }),
     }),
-    getChatMessages: builder.query({
+    getChatMessages: builder.query<
+      { messages: IMessage[]; hasMore: boolean },
+      { chatId: string; limit: string | number; lastMessageId?: string }
+    >({
       query: ({ chatId, limit, lastMessageId }) => ({
         url: `/api/chats/${chatId}/messages?limit=${limit}&lastMessageId=${lastMessageId || ""}`,
         method: "GET",

@@ -4,9 +4,14 @@ import authService from "../services/auth.service";
 import tokenService from "../services/token.service";
 import UserDto from "../dtos/user-dto";
 import { validationResult } from "express-validator";
+import { IUser } from "../models/User";
 
 class AuthController {
-  async signUp(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async registration(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const errors = validationResult(req);
 
@@ -25,15 +30,16 @@ class AuthController {
     }
   }
 
-  async signIn(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { email, password } = req.body;
       const userData = await authService.login(email, password);
 
       if (!userData.user.isActivated) {
-        res.status(400).json({ message: "user is not activated" });
+        throw ApiError.BadRequest(
+          "your account is not activated, please go to your email to activate your account"
+        );
       }
-
       res.cookie("accessToken", userData.accessToken, {
         httpOnly: true,
         secure: true,
@@ -44,18 +50,17 @@ class AuthController {
         secure: true,
         sameSite: "strict",
       });
-      res.status(200).json(userData);
+      res.status(200).json({ message: "you logged in" });
     } catch (e) {
       next(e);
     }
   }
 
-  async handleGoogleCallback(req: Request, res: Response): Promise<void> {
+  async loginWithGoogle(req: Request, res: Response): Promise<void> {
     try {
-      const user = req.user;
+      const user = req.user as IUser;
 
       if (user) {
-        //@ts-ignore
         const userDto = new UserDto(user);
         const accessToken = tokenService.generateAccessToken({ ...userDto });
         const refreshToken = tokenService.generateRefreshToken({ ...userDto });
@@ -100,6 +105,52 @@ class AuthController {
     } catch (e) {
       res.clearCookie("accessToken");
       res.clearCookie("refreshToken");
+      next(e);
+    }
+  }
+
+  async requestPasswordReset(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { email } = req.body;
+      await authService.requestPasswordReset(email);
+      res.status(200).json({
+        message: "Reset link sent to your email.",
+      });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  async checkResetTokenValidity(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const token = req.query.token as string;
+      console.log("check reset token validity", token);
+      await authService.checkResetTokenValidity(token);
+      res.status(200).json({ message: "token are valid" });
+    } catch (e) {
+      next(e);
+    }
+  }
+
+  // Эндпоинт для сброса пароля
+  async resetPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { token, newPassword } = req.body;
+      await authService.resetPassword(token, newPassword);
+      res.status(200).json({ message: "Password updated successfully." });
+    } catch (e) {
       next(e);
     }
   }

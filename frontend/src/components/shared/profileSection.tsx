@@ -7,26 +7,22 @@ import PlusIcon from "@/components/svgs/plus.svg";
 import Skill from "@/components/shared/skill";
 import { useRouter } from "next/navigation";
 import { LinkTo } from "@/utils/links";
-import { getProfileUserId } from "@/utils/getProfileUser";
+import { useGetProfileUser } from "@/hooks/useGetProfileUser";
 import ProfileSkeleton from "../skeletons/profileSkeleton";
 import {
   useGetRelationshipStatusQuery,
   useSubscribeMutation,
   useUnSubscribeMutation,
-} from "@/api/subscriptions";
-import { IAuthor, Iuser } from "@/@types/user";
+} from "@/api/subscriptionsApi";
+import { IAuthor } from "@/@types/user";
 import PostsList from "./postsList";
 import { useUserActions } from "@/hooks/useUserActions";
 import PostOrCommentForm from "../forms/PostOrCommentForm";
+import Link from "next/link";
 
-interface props {
-  isOwnPage: boolean;
-  currentUserImg: string | undefined;
-}
-
-const ProfileSection: React.FC<props> = ({ isOwnPage, currentUserImg }) => {
+const ProfileSection: React.FC<{ isOwnPage: boolean }> = ({ isOwnPage }) => {
   const router = useRouter();
-  const user: Iuser = getProfileUserId(isOwnPage);
+  const user = useGetProfileUser(isOwnPage);
   const [subscribe, { isLoading: subIsLoading }] = useSubscribeMutation();
   const [unSubscribe, { isLoading: unSubIsLoading }] = useUnSubscribeMutation();
   const { data: related } = useGetRelationshipStatusQuery(user?._id || "", {
@@ -36,10 +32,12 @@ const ProfileSection: React.FC<props> = ({ isOwnPage, currentUserImg }) => {
   const { handleSelectUser } = useUserActions();
 
   const subscribeHandler = () => {
-    if (!related?.isFollowing) {
-      subscribe(user?._id).unwrap().then().catch();
-    } else if (related?.isFollowing) {
-      unSubscribe(user?._id).unwrap().then().catch();
+    if (user?._id) {
+      if (!related?.isFollowing) {
+        subscribe(user?._id).unwrap().then().catch();
+      } else if (related?.isFollowing) {
+        unSubscribe(user?._id).unwrap().then().catch();
+      }
     }
   };
 
@@ -49,6 +47,8 @@ const ProfileSection: React.FC<props> = ({ isOwnPage, currentUserImg }) => {
   } else if (related?.isFollowing) {
     subscribeLabel = "Unfollow";
   }
+
+  if (!user) return null;
 
   return (
     <section className="w-[calc(screen_-_300px)] p-6">
@@ -71,9 +71,12 @@ const ProfileSection: React.FC<props> = ({ isOwnPage, currentUserImg }) => {
               </h1>
               <div className="flex items-center gap-x-5">
                 <p className="font-bold">Posts {user?.postsCount}</p>|
-                <p className="cursor-pointer font-bold duration-300 hover:text-primary">
+                <Link
+                  href={`${LinkTo.subscribers}/${user?._id}`}
+                  className="cursor-pointer font-bold duration-300 hover:text-primary"
+                >
                   Following {user?.followingCount || 0}
-                </p>
+                </Link>
                 <Button
                   isLoading={subIsLoading || unSubIsLoading}
                   onClick={subscribeHandler}
@@ -105,7 +108,7 @@ const ProfileSection: React.FC<props> = ({ isOwnPage, currentUserImg }) => {
         <div className="flex w-full max-w-[65%] flex-col">
           {isOwnPage && <PostOrCommentForm />}
 
-          <PostsList isOwnPage={isOwnPage} userId={user?._id} />
+          {user?._id && <PostsList isOwnPage={isOwnPage} userId={user?._id} />}
         </div>
 
         {/* subs */}
@@ -113,7 +116,12 @@ const ProfileSection: React.FC<props> = ({ isOwnPage, currentUserImg }) => {
           {user?.followers?.length > 0 && (
             <>
               <div className="flex items-center justify-between gap-x-3">
-                <span className="text-[18px] font-extrabold">Followers</span>
+                <Link
+                  href={`${LinkTo.subscribers}/${user?._id}`}
+                  className="cursor-pointer text-[18px] font-extrabold"
+                >
+                  Followers
+                </Link>
                 <div className="bg-green-400 px-2 text-black">
                   {user?.followers?.length || 0}
                 </div>
@@ -129,7 +137,7 @@ const ProfileSection: React.FC<props> = ({ isOwnPage, currentUserImg }) => {
                       height={36}
                       src={item?.img_url || "/avatar.png"}
                       alt="ava"
-                      className="cursor-pointer rounded-full duration-200 hover:scale-105"
+                      className="cursor-pointer rounded-full duration-200 hover:scale-105 hover:brightness-75"
                     />
                   ))
                 ) : (

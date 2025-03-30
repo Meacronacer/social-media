@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, RefObject } from "react";
+import { useState, useCallback, RefObject } from "react";
 
 interface PickerPosition {
   top: number;
@@ -32,31 +32,35 @@ const useEmojiPickerPosition = (
   });
   const [showPicker, setShowPicker] = useState(false);
 
-  const handleEmojiIconClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (iconRef.current) {
-        const iconRect = iconRef.current.getBoundingClientRect();
-        // Вычисляем визуальную (эффективную) высоту с учетом scale
-        const effectivePickerHeight = pickerHeight * scaleFactor;
-        const left = iconRect.left + window.scrollX + (adjustments.left || 0);
-        // Начинаем позиционировать ниже иконки
-        let newTop = iconRect.bottom + window.scrollY + (adjustments.top || 0);
-        const spaceBelow = window.innerHeight - iconRect.bottom;
-        // Если места снизу недостаточно, позиционируем пикер над иконкой
-        if (spaceBelow < effectivePickerHeight) {
-          newTop =
-            iconRect.top -
-            effectivePickerHeight +
-            window.scrollY +
-            (adjustments.top || 0) -
-            newTopMargin;
-        }
-        setPickerPosition({ top: newTop, left });
-        setShowPicker((prev) => !prev);
+  const handleEmojiIconClick = useCallback(() => {
+    if (iconRef.current) {
+      const iconRect = iconRef.current.getBoundingClientRect();
+      // Вычисляем визуальную (эффективную) высоту с учетом scale
+      const effectivePickerHeight = pickerHeight * scaleFactor;
+      const left = iconRect.left + window.scrollX + (adjustments.left || 0);
+      // Начинаем позиционировать ниже иконки
+      let newTop = iconRect.bottom + window.scrollY + (adjustments.top || 0);
+      const spaceBelow = window.innerHeight - iconRect.bottom;
+      // Если места снизу недостаточно, позиционируем пикер над иконкой
+      if (spaceBelow < effectivePickerHeight) {
+        newTop =
+          iconRect.top -
+          effectivePickerHeight +
+          window.scrollY +
+          (adjustments.top || 0) -
+          newTopMargin;
       }
-    },
-    [adjustments.left, adjustments.top, pickerHeight, scaleFactor],
-  );
+      setPickerPosition({ top: newTop, left });
+      setShowPicker((prev) => !prev);
+    }
+  }, [
+    adjustments.left,
+    adjustments.top,
+    pickerHeight,
+    scaleFactor,
+    iconRef,
+    newTopMargin,
+  ]);
 
   return {
     pickerPosition,

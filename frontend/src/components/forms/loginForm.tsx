@@ -1,8 +1,9 @@
 "use client";
-import { useLoginMutation } from "@/api/auth";
+import { useLoginMutation } from "@/api/authApi";
 import { BtnLoader } from "@/components/shared/btnLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import useToastify from "@/hooks/useToastify";
 import { LinkTo } from "@/utils/links";
 import { yupResolver } from "@hookform/resolvers/yup";
 import Image from "next/image";
@@ -24,6 +25,7 @@ interface Inputs {
 const LoginForm = () => {
   const [login, { isLoading }] = useLoginMutation({});
   const router = useRouter();
+  const { toastError } = useToastify();
   const {
     register,
     handleSubmit,
@@ -44,11 +46,14 @@ const LoginForm = () => {
         reset();
         router.push(LinkTo.home);
       })
-      .catch((error) => console.error(error));
+      .catch((error) => {
+        toastError(error.data.message);
+        reset({ password: "" });
+      });
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8000/api/auth/google"; // Перенаправление на бэкенд
+    window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/google`; // Перенаправление на бэкенд
   };
 
   return (
@@ -97,16 +102,19 @@ const LoginForm = () => {
           </div>
         </form>
         <p>
-          <a
-            href="/dashboard/signin/forgot_password"
-            className="text-sm font-medium text-white"
+          <Link
+            href={LinkTo.forgotPassword}
+            className="text-sm font-medium text-white hover:text-white/50"
           >
             Forgot your password?
-          </a>
+          </Link>
         </p>
-        <p>
-          <Link href={LinkTo.signUp} className="text-sm font-medium text-white">
-            Don't have an account? Sign Up
+        <p className="mt-2">
+          <Link
+            href={LinkTo.signUp}
+            className="text-sm font-medium text-white hover:text-white/50"
+          >
+            Don&apos;t have an account? Sign Up
           </Link>
         </p>
       </div>

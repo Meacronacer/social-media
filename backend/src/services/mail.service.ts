@@ -30,6 +30,23 @@ class MailService {
         `,
     });
   }
+
+  async sendResetPasswordMail(to: string, link: string): Promise<void> {
+    await this.transporter.sendMail({
+      from: process.env.SMTP_USER,
+      to,
+      subject: "Password Reset on " + process.env.API_URL,
+      text: "",
+      html: `
+        <div>
+          <h1>Password Reset Request</h1>
+          <p>To reset your password, follow the link:</p>
+          <a href="${link}">${link}</a>
+          <p>If you did not request a password reset, simply ignore this email..</p>
+        </div>
+      `,
+    });
+  }
 }
 
 export default new MailService();

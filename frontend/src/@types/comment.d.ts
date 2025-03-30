@@ -1,10 +1,8 @@
-import { Iuser } from "./user";
-
 export interface IComment {
   _id: string;
   author: IAuthor;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   parentComment: null;
   post: string;
   likes: string[];

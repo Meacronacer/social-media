@@ -1,12 +1,12 @@
 import { IComment } from "./comment";
-import { Iuser } from "./user";
+import { IAuthor } from "./user";
 
 export interface IPost {
   _id: string;
-  author: Iuser;
+  author: IAuthor;
   text: string;
   comments: IComment[];
   likes: Types.ObjectId[];
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt?: Date;
 }

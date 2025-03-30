@@ -1,10 +1,16 @@
-import { BaseApi, baseHeadersOptions } from "@/utils/baseFetch";
-import { postsApi } from "./posts";
+import { BaseApi } from "@/utils/baseFetch";
+import { postsApi } from "./postsApi";
 import { RootState } from "@/redux/store";
+import { IComment } from "@/@types/comment";
+import { IPost } from "@/@types/post";
+import { toast } from "react-toastify";
 
 export const commentApi = BaseApi.injectEndpoints({
   endpoints: (builder) => ({
-    createComment: builder.mutation({
+    createComment: builder.mutation<
+      IComment,
+      { postId: string; text: string; userId: string }
+    >({
       query: (commentData) => ({
         url: "/api/comment/create",
         method: "POST",
@@ -14,75 +20,39 @@ export const commentApi = BaseApi.injectEndpoints({
         commentData,
         { dispatch, queryFulfilled, getState },
       ) {
-        // Генерируем временный _id для комментария
-        const tempId = "temp_" + Math.random().toString(36).substr(2, 9);
-        const patchResults: any[] = [];
-        // Находим все кэшированные запросы, где есть пост с commentData.postId
-        const queries = postsApi.util.selectInvalidatedBy(getState(), [
-          { type: "Post", id: commentData.postId },
-        ]);
-        for (const { endpointName, originalArgs } of queries) {
-          if (endpointName === "getPostsPaginated") {
-            const patchResult = dispatch(
-              postsApi.util.updateQueryData(
-                endpointName,
-                originalArgs,
-                (draft: any) => {
-                  const post = draft.posts.find(
-                    (p: any) => p._id === commentData.postId,
-                  );
-                  if (post) {
-                    // Если комментариев ещё нет, инициализируем пустой массив
-                    if (!post.comments) post.comments = [];
-                    post.comments.push({
-                      ...commentData,
-                      _id: tempId,
-                      likes: [],
-                      createdAt: new Date().toISOString(),
-                    });
-                  }
-                },
-              ),
-            );
-            patchResults.push(patchResult);
-          }
-        }
         try {
-          // Получаем созданный комментарий с сервера
+          // Ожидаем успешного выполнения запроса и получения созданного комментария с сервера
           const { data: createdComment } = await queryFulfilled;
-          // Заменяем временный комментарий на полученный с сервера
+
+          // Обновляем кэшированные данные постов, добавляя новый комментарий
+          const queries = postsApi.util.selectInvalidatedBy(getState(), [
+            { type: "Post", id: commentData.postId },
+          ]);
+
           for (const { endpointName, originalArgs } of queries) {
             if (endpointName === "getPostsPaginated") {
               dispatch(
                 postsApi.util.updateQueryData(
                   endpointName,
                   originalArgs,
-                  (draft: any) => {
+                  (draft) => {
                     const post = draft.posts.find(
-                      (p: any) => p._id === commentData.postId,
+                      (p: IPost) => p._id === commentData.postId,
                     );
                     if (post) {
-                      const index = post.comments.findIndex(
-                        (c: any) => c._id === tempId,
-                      );
-                      if (index !== -1) {
-                        post.comments[index] = createdComment;
-                      }
+                      // Если комментариев ещё нет, инициализируем пустой массив
+                      if (!post.comments) post.comments = [];
+                      post.comments.push(createdComment);
                     }
                   },
                 ),
               );
             }
           }
-        } catch (error) {
-          // Откат изменений в случае ошибки
-          patchResults.forEach((patch) => patch.undo());
+        } catch {
+          toast.error("An error occurred while creating the comment.");
         }
       },
-      invalidatesTags: (result, error, { postId }) => [
-        { type: "Post", id: postId },
-        { type: "Post", id: "LIST" },
-      ],
     }),
 
     editComment: builder.mutation({
@@ -100,7 +70,7 @@ export const commentApi = BaseApi.injectEndpoints({
         }: { commentId: string; text: string; postId: string },
         { dispatch, queryFulfilled, getState },
       ) {
-        const patchResults: any[] = [];
+        const patchResults = [];
         const queries = postsApi.util.selectInvalidatedBy(getState(), [
           { type: "Post", id: postId },
         ]);
@@ -110,11 +80,11 @@ export const commentApi = BaseApi.injectEndpoints({
               postsApi.util.updateQueryData(
                 endpointName,
                 originalArgs,
-                (draft: any) => {
-                  const post = draft.posts.find((p: any) => p._id === postId);
+                (draft) => {
+                  const post = draft.posts.find((p: IPost) => p._id === postId);
                   if (post && post.comments) {
                     const comment = post.comments.find(
-                      (c: any) => c._id === commentId,
+                      (c: IComment) => c._id === commentId,
                     );
                     if (comment) {
                       comment.text = text;
@@ -126,19 +96,18 @@ export const commentApi = BaseApi.injectEndpoints({
             patchResults.push(patchResult);
           }
         }
+
         try {
           await queryFulfilled;
-        } catch (error) {
+        } catch {
           patchResults.forEach((patch) => patch.undo());
+          toast.error("An error occurred while editing the comment.");
         }
       },
-      invalidatesTags: (result, error, { postId }) => [
-        { type: "Post", id: postId },
-      ],
     }),
 
     deleteComment: builder.mutation({
-      query: ({ commentId, postId }) => ({
+      query: ({ commentId }) => ({
         url: `/api/comment/${commentId}`,
         method: "DELETE",
       }),
@@ -146,7 +115,7 @@ export const commentApi = BaseApi.injectEndpoints({
         { commentId, postId },
         { dispatch, queryFulfilled, getState },
       ) {
-        const patchResults: any[] = [];
+        const patchResults = [];
         const queries = postsApi.util.selectInvalidatedBy(getState(), [
           { type: "Post", id: postId },
         ]);
@@ -156,11 +125,11 @@ export const commentApi = BaseApi.injectEndpoints({
               postsApi.util.updateQueryData(
                 endpointName,
                 originalArgs,
-                (draft: any) => {
-                  const post = draft.posts.find((p: any) => p._id === postId);
+                (draft) => {
+                  const post = draft.posts.find((p: IPost) => p._id === postId);
                   if (post && post.comments) {
                     post.comments = post.comments.filter(
-                      (c: any) => c._id !== commentId,
+                      (c: IComment) => c._id !== commentId,
                     );
                   }
                 },
@@ -169,19 +138,18 @@ export const commentApi = BaseApi.injectEndpoints({
             patchResults.push(patchResult);
           }
         }
+
         try {
           await queryFulfilled;
-        } catch (error) {
+        } catch {
           patchResults.forEach((patch) => patch.undo());
+          toast.error("An error occurred while deleting the comment");
         }
       },
-      invalidatesTags: (result, error, { postId }) => [
-        { type: "Post", id: postId },
-      ],
     }),
 
     likeComment: builder.mutation({
-      query: ({ commentId, postId }) => ({
+      query: ({ commentId }) => ({
         url: `/api/comment/${commentId}/like`,
         method: "POST",
       }),
@@ -189,9 +157,8 @@ export const commentApi = BaseApi.injectEndpoints({
         { commentId, postId },
         { dispatch, queryFulfilled, getState },
       ) {
-        //@ts-ignore
         const userId = (getState() as RootState).authSlice.user._id;
-        const patchResults: any[] = [];
+        const patchResults = [];
         const queries = postsApi.util.selectInvalidatedBy(getState(), [
           { type: "Post", id: postId },
         ]);
@@ -201,13 +168,13 @@ export const commentApi = BaseApi.injectEndpoints({
               postsApi.util.updateQueryData(
                 endpointName,
                 originalArgs,
-                (draft: any) => {
-                  const post = draft.posts.find((p: any) => p._id === postId);
+                (draft) => {
+                  const post = draft.posts.find((p: IPost) => p._id === postId);
                   if (post && post.comments) {
                     const comment = post.comments.find(
-                      (c: any) => c._id === commentId,
+                      (c: IComment) => c._id === commentId,
                     );
-                    if (comment) {
+                    if (comment && userId) {
                       const isLiked = comment.likes.includes(userId);
                       if (isLiked) {
                         comment.likes = comment.likes.filter(
@@ -224,16 +191,14 @@ export const commentApi = BaseApi.injectEndpoints({
             patchResults.push(patchResult);
           }
         }
+
         try {
           await queryFulfilled;
         } catch {
           patchResults.forEach((patch) => patch.undo());
+          toast.error("an error occurred while Like/Unlike comment.");
         }
       },
-      invalidatesTags: (result, error, { postId }) => [
-        { type: "Post", id: postId },
-        { type: "Post", id: "LIST" },
-      ],
     }),
   }),
 });

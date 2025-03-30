@@ -14,13 +14,11 @@ const ChatClient = () => {
   const timeoutRef = useRef<number | null>(null); // 1. Указываем правильный тип для браузера
 
   const {
-    selectedRoom,
-    setSelectedRoom,
     activeChats,
     isChatsLoading: isChatsLoading,
     user,
     setUser,
-    joinRoom,
+    markAsRead,
   } = useChats(debouncedSearchTerm);
 
   useEffect(() => {
@@ -82,9 +80,9 @@ const ChatClient = () => {
             </div>
           ) : (
             <div className="animate-fade-in">
-              {activeChats.map((user, index) => (
+              {activeChats.map((item, index) => (
                 <div
-                  key={user._id}
+                  key={item._id}
                   className="animate-fade-in"
                   style={{
                     animationDelay: `${index * 0.1}s`,
@@ -92,11 +90,12 @@ const ChatClient = () => {
                   }}
                 >
                   <ChatOverview
-                    {...user}
-                    setSelectedRoom={setSelectedRoom}
-                    selectedRoom={selectedRoom}
+                    participants={item.participants}
+                    lastMessage={item.lastMessage}
+                    unreadMessages={item.unreadMessages}
+                    markAsRead={markAsRead}
+                    selectedUserId={user?._id}
                     setUser={setUser}
-                    joinRoom={joinRoom}
                   />
                 </div>
               ))}
@@ -110,14 +109,8 @@ const ChatClient = () => {
         </div>
       </div>
 
-      {selectedRoom ? (
-        <ChatBody
-          setSelectedRoom={setSelectedRoom}
-          toUserId={user?._id}
-          toFirstName={user?.first_name}
-          toLastName={user?.second_name}
-          toImgUrl={user?.img_url}
-        />
+      {user?._id ? (
+        <ChatBody {...user} setUser={setUser} />
       ) : (
         <h1 className="m-auto">Please select room to start chat</h1>
       )}

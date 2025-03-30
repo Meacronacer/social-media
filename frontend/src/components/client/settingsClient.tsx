@@ -4,7 +4,7 @@ import Skill from "@/components/shared/skill";
 import { useAppSelector } from "@/hooks/useRedux";
 import Image from "next/image";
 import { Button } from "../ui/button";
-import { useLogoutMutation } from "@/api/auth";
+import { useLogoutMutation } from "@/api/authApi";
 import { useRouter } from "next/navigation";
 import { LinkTo } from "@/utils/links";
 import Switch from "../ui/switch";
@@ -49,7 +49,7 @@ const SettingsClientPage = () => {
 
         <div className="mb-6 mt-8 w-full border-b border-dashed border-white"></div>
 
-        <div className="flex justify-between gap-x-3">
+        <div className="flex flex-wrap justify-between gap-2">
           {" "}
           <p>Hide Notification Messages</p>
           <Switch />
@@ -58,14 +58,14 @@ const SettingsClientPage = () => {
         <div>
           <span className="mt-4 block text-[18px] font-extrabold">Skills</span>
 
-          <div className="mt-3 flex gap-1">
+          <div className="mt-3 flex flex-wrap gap-1">
             {skills?.length > 0 ? (
               skills?.map((text: string, idx: number) => (
                 <Skill key={idx} text={text} />
               ))
             ) : (
               <p className="text-[14px] text-red-300">
-                you haven't added any skills yet, please add them
+                you haven&apos;t added any skills yet, please add them
               </p>
             )}
           </div>

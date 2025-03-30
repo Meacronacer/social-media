@@ -16,9 +16,9 @@ const Popup: React.FC<props> = ({
   setIsEditing,
 }) => {
   const [showPopup, setShowPopup] = useState<boolean>(false);
-  const popupRef = useRef<HTMLElement | null>(null);
+  const popupRef = useRef<HTMLDivElement | null>(null);
 
-  useClickOutside(popupRef, () => setShowPopup(false));
+  useClickOutside([popupRef], () => setShowPopup(false));
 
   return (
     <>

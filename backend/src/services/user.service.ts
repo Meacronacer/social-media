@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { ObjectId, Types } from "mongoose";
 import AvatarService from "./avatar.service";
 import PostModel from "../models/Post";
+import ApiError from "../exceptions/api-errors";
 
 interface UpdateProfileData {
   first_name: string;
@@ -13,24 +14,49 @@ interface UpdateProfileData {
 }
 
 class UserService {
-  async getUsers(userId: string | ObjectId, search: string) {
-    const regex = new RegExp(search, "i");
+  async getUsersWithPagination(
+    userId: string | Types.ObjectId,
+    search: string,
+    page: number,
+    limit: number
+  ) {
+    const skip = (page - 1) * limit;
 
-    const users = await UserModel.find({
-      _id: { $ne: userId },
-      $or: [{ first_name: regex }, { second_name: regex }, { skills: regex }],
-    }).select(
-      "-isActivated -posts -password -chats -activationLink -roles -__v -email"
-    );
+    const [users, total] = await Promise.all([
+      UserModel.find({
+        _id: { $ne: userId },
+        $or: [
+          { first_name: new RegExp(search, "i") },
+          { second_name: new RegExp(search, "i") },
+          { skills: new RegExp(search, "i") },
+        ],
+      })
+        .select("_id first_name second_name img_url skills description")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit),
 
-    return users;
+      UserModel.countDocuments({
+        _id: { $ne: userId },
+        $or: [
+          { first_name: new RegExp(search, "i") },
+          { second_name: new RegExp(search, "i") },
+          { skills: new RegExp(search, "i") },
+        ],
+      }),
+    ]);
+
+    return {
+      users,
+      total,
+      hasMore: skip + limit < total, // Используем limit вместо users.length
+    };
   }
 
   async findUserById(id: string): Promise<IUser | null> {
     if (!Types.ObjectId.isValid(id)) {
-      return null;
+      throw ApiError.BadRequest("user don't exist");
     }
-    // Обратите внимание: здесь мы не исключаем following
     const user = await UserModel.findById(new Types.ObjectId(id))
       .select(
         "-password -isActivated -activationLink -roles -posts -chats -__v -updatedAt"
@@ -43,11 +69,11 @@ class UserService {
       .lean();
 
     if (user) {
-      // Подсчитываем количество постов, где автор равен найденному пользователю
       const postsCount = await PostModel.countDocuments({ author: user._id });
-      // Количество подписок определяется длиной массива following
       const followingCount = user.following ? user.following.length : 0;
-      return { ...user, postsCount, followingCount };
+      // Создаем новый объект без свойства following
+      const { following, ...userWithoutFollowing } = user;
+      return { ...userWithoutFollowing, postsCount, followingCount };
     }
 
     return user;

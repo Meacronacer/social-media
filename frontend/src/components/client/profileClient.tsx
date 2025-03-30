@@ -10,18 +10,18 @@ interface props {
 }
 
 const ProfileClientPage: React.FC<props> = ({ isOwnPage }) => {
-  const { _id, img_url } = useAppSelector((state) => state.authSlice.user);
+  const userId = useAppSelector((state) => state.authSlice.user._id);
   const router = useRouter();
   const path = usePathname();
 
   useEffect(() => {
     // Проверяем, если текущий _id пользователь совпадает с параметром пути
-    if (_id === path.slice(1)) {
+    if (userId === path.slice(1)) {
       router.push(LinkTo.home);
     }
-  }, [_id, path, router]);
+  }, [userId, path, router]);
 
-  return <ProfileSection isOwnPage={isOwnPage} currentUserImg={img_url} />;
+  return <ProfileSection isOwnPage={isOwnPage} />;
 };
 
 export default ProfileClientPage;

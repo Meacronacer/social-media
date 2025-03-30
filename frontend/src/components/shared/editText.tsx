@@ -1,11 +1,7 @@
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useClickOutside } from "@/hooks/useClickOutside";
-import useEmojiPickerPosition from "@/hooks/useEmojiPickerPosition";
-import Portal from "./portal";
-import Image from "next/image";
-import EmojiPicker from "./emojiPicker";
+import EmojiPickerWrapper from "./emojiPickerWrapper";
 
 interface props {
   text: string;
@@ -22,27 +18,6 @@ const EditText: React.FC<props> = ({
 }) => {
   const [editedText, setEditedText] = useState<string>(text);
 
-  const pickerRef = useRef<HTMLDivElement>(null);
-  const iconRef = useRef<HTMLImageElement>(null);
-
-  // Используем хук с нужными настройками:
-  // scaleFactor 0.8, pickerHeight 300, и корректирующие отступы для точного позиционирования
-  const { pickerPosition, showPicker, setShowPicker, handleEmojiIconClick } =
-    useEmojiPickerPosition(iconRef, {
-      // Передаем ref в хук
-      scaleFactor: 0.8,
-      pickerHeight: 300,
-      newTopMargin: 80,
-      adjustments: { left: -285, top: -60 },
-    });
-
-  useClickOutside([pickerRef, iconRef], () => setShowPicker(false));
-
-  const handleEmojiSelect = (emoji: any) => {
-    setEditedText((prev) => prev + emoji.native);
-    setShowPicker(false);
-  };
-
   return (
     <div className="flex flex-col gap-y-3">
       <div className="flex w-full gap-x-3">
@@ -52,31 +27,7 @@ const EditText: React.FC<props> = ({
           className="text-[12px]"
           onChange={(e) => setEditedText(e.target.value)}
         />
-        <Image
-          ref={iconRef}
-          onClick={handleEmojiIconClick}
-          width={24}
-          height={24}
-          className="cursor-pointer duration-200 hover:scale-105"
-          alt="emoji"
-          src="/smile.svg"
-        />
-        {showPicker && (
-          <Portal>
-            <div
-              ref={pickerRef} // Добавьте эту строку
-              style={{
-                position: "absolute",
-                top: pickerPosition.top,
-                left: pickerPosition.left,
-                zIndex: 1000,
-                transform: "scale(0.7)",
-              }}
-            >
-              <EmojiPicker onSelect={handleEmojiSelect} />
-            </div>
-          </Portal>
-        )}
+        <EmojiPickerWrapper handleInputChange={setEditedText} />
       </div>
       <div className="flex items-center gap-x-2">
         <Button

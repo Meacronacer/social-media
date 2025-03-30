@@ -2,18 +2,10 @@ import Image from "next/image";
 import { cn } from "@/utils/twMerge";
 import { formatTimeForChatBody } from "@/utils/formatMessageTimeStamp";
 import { IAuthor } from "@/@types/user";
-
-export interface Message {
-  _id: any;
-  sender: string;
-  recipient: string;
-  text: string;
-  timestamp: string;
-  status: string;
-}
+import { IMessage } from "@/@types/message";
 
 interface MessageBubbleProps {
-  message: Message;
+  message: IMessage;
   isCurrentUser: boolean;
   user: Pick<IAuthor, "first_name" | "second_name" | "img_url">;
   showAvatar: boolean;

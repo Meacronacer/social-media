@@ -1,7 +1,7 @@
 import { Schema, model, Document, Types, ObjectId } from "mongoose";
 
 export interface IUser extends Document {
-  _id: ObjectId | string;
+  _id: string;
   first_name: string;
   second_name: string;
   img_url?: string;
@@ -9,13 +9,15 @@ export interface IUser extends Document {
   description: string;
   skills: string[];
   password: string;
+  resetPasswordToken: string | null;
+  resetPasswordExpires: string | null;
   isActivated: boolean;
   activationLink?: string;
   roles: Types.ObjectId[];
   posts: Types.ObjectId[];
   chats: Types.ObjectId[];
   followers: Types.ObjectId[];
-  following: Types.ObjectId[];
+  following?: Types.ObjectId[];
   postsCount: number;
   followingCount: number;
 }
@@ -29,6 +31,8 @@ const UserSchema = new Schema<IUser>(
     description: { type: String, default: "" },
     skills: { type: [String], default: [] },
     password: { type: String, required: true },
+    resetPasswordToken: { type: String, default: null },
+    resetPasswordExpires: { type: Date, default: null },
     isActivated: { type: Boolean, default: false },
     activationLink: { type: String },
     roles: { type: [Schema.Types.ObjectId], ref: "Role" },

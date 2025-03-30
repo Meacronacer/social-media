@@ -3,26 +3,30 @@ import { useSocket } from "@/providers/socketIoProvider";
 import {
   useGetChatMessagesQuery,
   useLazyGetChatMessagesQuery,
-} from "@/api/chats";
-import { Message } from "@/components/chat/messageBubble";
+} from "@/api/chatsApi";
+
 import { Iuser } from "@/@types/user";
+import { IMessage } from "@/@types/message";
 
 export const useChatMessages = (
   chatId: string,
-  senderUser: Iuser,
-  recipientUserId: string | undefined,
+  currentUser: Iuser,
+  toUserId: string | undefined,
   chatRef: RefObject<HTMLDivElement | null>,
 ) => {
   const { socket } = useSocket();
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [otherUserTyping, setOtherUserTyping] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false); // Новое состояние
 
-  const { data, isLoading } = useGetChatMessagesQuery({
-    chatId,
-    limit: 10,
-  });
+  const { data, isLoading, isError } = useGetChatMessagesQuery(
+    {
+      chatId,
+      limit: 20,
+    },
+    { refetchOnMountOrArgChange: true },
+  );
   const [fetchMoreMessages] = useLazyGetChatMessagesQuery();
 
   useEffect(() => {
@@ -30,17 +34,19 @@ export const useChatMessages = (
       setMessages(data.messages);
       setHasMore(data.hasMore);
     }
-  }, [data]);
 
-  // useEffect(() => {
-  //   socket?.emit("markAsRead", {
-  //     currentUserId: senderUser._id,
-  //     toUserId: recipientUserId,
-  //   });
-  // }, []);
+    if (isError) {
+      setMessages([]);
+    }
+  }, [data, isError]);
 
   useEffect(() => {
-    socket?.on("receiveMessage", (newMessage: Message) => {
+    socket?.emit("joinRoom", {
+      currentUserId: currentUser._id,
+      toUserId,
+    });
+
+    socket?.on("receiveMessage", (newMessage: IMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
@@ -56,8 +62,9 @@ export const useChatMessages = (
       socket?.off("receiveMessage");
       socket?.off("userTyping");
       socket?.off("userStopTyping");
+      socket?.emit("leaveRoom", { currentUserId: currentUser._id, toUserId });
     };
-  }, [socket]);
+  }, [socket, currentUser?._id, toUserId]);
 
   const loadMoreMessages = useCallback(async () => {
     if (!hasMore || messages.length === 0 || isLoadingMore) return; // Проверяем, выполняется ли уже загрузка
@@ -73,7 +80,7 @@ export const useChatMessages = (
     const { data } = await fetchMoreMessages({
       chatId,
       lastMessageId,
-      limit: 10,
+      limit: 20,
     });
 
     if (data?.messages.length) {
@@ -87,7 +94,7 @@ export const useChatMessages = (
     }
 
     setIsLoadingMore(false); // Сбрасываем флаг загрузки
-  }, [messages, hasMore, fetchMoreMessages, isLoadingMore]);
+  }, [messages, hasMore, fetchMoreMessages, isLoadingMore, chatId, chatRef]);
 
   useEffect(() => {
     const chatElement = chatRef.current;
@@ -104,21 +111,21 @@ export const useChatMessages = (
     return () => {
       chatElement.removeEventListener("scroll", handleScroll);
     };
-  }, [loadMoreMessages, isLoadingMore]);
+  }, [loadMoreMessages, isLoadingMore, chatRef]);
 
   const sendMessage = useCallback(
     (message: string) => {
-      const { _id, first_name, second_name, img_url } = senderUser;
-      if (message.trim() && recipientUserId && _id) {
+      const { _id, first_name, second_name, img_url } = currentUser;
+      if (message.trim() && toUserId && _id) {
         socket?.emit("sendMessage", {
-          senderUserId: _id,
-          recipientUserId,
+          currentUserId: _id,
+          toUserId,
           message,
           user: { _id, first_name, second_name, img_url },
         });
       }
     },
-    [socket, recipientUserId, senderUser],
+    [socket, toUserId, currentUser],
   );
 
   return {

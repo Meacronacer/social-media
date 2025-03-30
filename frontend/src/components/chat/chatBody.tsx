@@ -13,39 +13,39 @@ import { getChatId } from "@/utils/getChatId";
 import { useChatMessages } from "@/hooks/useChatMessage";
 import { useMessageInput } from "@/hooks/useChatInput";
 import MessageBubble from "./messageBubble";
-import { useClickOutside } from "@/hooks/useClickOutside";
-import useEmojiPickerPosition from "@/hooks/useEmojiPickerPosition";
-import Portal from "../shared/portal";
-import EmojiPicker from "../shared/emojiPicker";
+import { Emoji } from "@emoji-mart/data";
+import Link from "next/link";
+import EmojiPickerWrapper from "../shared/emojiPickerWrapper";
+import { IAuthor } from "@/@types/user";
 
-interface ChatProps {
-  setSelectedRoom: Dispatch<SetStateAction<string | null>>;
-  toUserId: string | undefined;
-  toFirstName?: string;
-  toLastName?: string;
-  toImgUrl?: string | undefined;
+export interface CustomEmoji extends Emoji {
+  native: string;
+  unified: string;
 }
 
-const ChatBody: React.FC<ChatProps> = ({
-  setSelectedRoom,
-  toUserId,
-  toFirstName,
-  toLastName,
-  toImgUrl,
+interface props extends IAuthor {
+  setUser: Dispatch<SetStateAction<IAuthor | null>>;
+}
+
+const ChatBody: React.FC<props> = ({
+  _id,
+  first_name,
+  second_name,
+  img_url,
+  setUser,
 }) => {
   const currentUser = useAppSelector((state) => state.authSlice.user);
-  const chatId = getChatId(currentUser._id, toUserId);
+  const chatId = getChatId(currentUser._id, _id);
   const chatRef = useRef<HTMLDivElement>(null);
 
   const { messages, isLoading, otherUserTyping, sendMessage } = useChatMessages(
     chatId,
     currentUser,
-    toUserId,
+    _id,
     chatRef,
   );
 
-  const { message, handleInputChange, handleKeyDown } =
-    useMessageInput(sendMessage);
+  const { message, setMessage, handleKeyDown } = useMessageInput(sendMessage);
 
   useEffect(() => {
     if (chatRef.current) {
@@ -53,47 +53,31 @@ const ChatBody: React.FC<ChatProps> = ({
     }
   }, [messages]);
 
-  // Добавьте состояния и refs для emoji picker
-  const pickerRef = useRef<HTMLDivElement>(null);
-  const iconRef = useRef<HTMLImageElement>(null);
-
-  const { pickerPosition, showPicker, setShowPicker, handleEmojiIconClick } =
-    useEmojiPickerPosition(iconRef, {
-      // Передаем ref в хук
-      scaleFactor: 0.8,
-      pickerHeight: 300,
-      adjustments: { left: -285, top: -30 },
-    });
-
-  useClickOutside([pickerRef, iconRef], () => setShowPicker(false));
-
-  const handleEmojiSelect = (emoji: any) => {
-    handleInputChange(emoji.native || emoji.unified); // Используем `native`, а если нет, `unified`
-    setShowPicker(false);
-  };
-
   return (
     <div className="w-full">
       {/* Header */}
       <div className="flex items-center justify-between border-b-[1px] px-5 py-4">
         <div
-          onClick={() => setSelectedRoom(null)}
+          onClick={() => setUser(null)}
           className="flex h-[44px] w-[44px] cursor-pointer items-center justify-center border-[1px] hover:bg-active"
         >
           <ArrowRightIcon className="rotate-180" />
         </div>
-        <div className="flex items-center gap-x-3">
+        <Link
+          href={`/${_id}`}
+          className="flex cursor-pointer items-center gap-x-3"
+        >
           <Image
             width={32}
             height={32}
             className="rounded-[50%]"
-            src={toImgUrl || "/avatar.png"}
+            src={img_url || "/avatar.png"}
             alt="avatar"
           />
-          <h3>
-            {toFirstName} {toLastName}
-          </h3>
-        </div>
+          <span>
+            {first_name} {second_name}
+          </span>
+        </Link>
         <div className="relative flex h-[44px] w-[44px] cursor-pointer items-center justify-center border-[1px] hover:bg-active">
           <EditMenuIcon className="rotate-90" />
         </div>
@@ -142,6 +126,12 @@ const ChatBody: React.FC<ChatProps> = ({
                   {showDateHeader && (
                     <div className="mx-auto my-2 flex h-[28px] w-fit items-center justify-center rounded-md bg-gray-800 p-2 text-center text-sm text-gray-300">
                       {formatDateHeader(message?.timestamp)}
+                      <Image
+                        src="/down.svg"
+                        width={16}
+                        height={16}
+                        alt="down"
+                      />
                     </div>
                   )}
                   <MessageBubble
@@ -157,9 +147,9 @@ const ChatBody: React.FC<ChatProps> = ({
                             img_url: currentUser.img_url,
                           }
                         : {
-                            first_name: toFirstName,
-                            second_name: toLastName,
-                            img_url: toImgUrl,
+                            first_name: first_name,
+                            second_name: second_name,
+                            img_url: img_url,
                           }
                     }
                   />
@@ -180,41 +170,20 @@ const ChatBody: React.FC<ChatProps> = ({
           />
           <Input
             value={message}
-            onChange={handleInputChange}
+            onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             variant="second"
             containerClassName="w-full"
             placeholder="Write a message..."
           />
           <div className="flex h-10 w-10 cursor-pointer items-center justify-center hover:bg-active">
-            <Image
-              ref={iconRef}
-              onClick={handleEmojiIconClick}
-              src="/smile.svg"
-              width={24}
-              height={24}
-              alt="emoji"
-            />
-
-            {showPicker && (
-              <Portal>
-                <div
-                  ref={pickerRef}
-                  style={{
-                    position: "fixed",
-                    top: pickerPosition.top,
-                    left: pickerPosition.left,
-                    zIndex: 1000,
-                    transform: "scale(0.8)",
-                  }}
-                >
-                  <EmojiPicker onSelect={handleEmojiSelect} />
-                </div>
-              </Portal>
-            )}
+            <EmojiPickerWrapper handleInputChange={setMessage} />
           </div>
           <Button
-            onClick={() => sendMessage(message)}
+            onClick={() => {
+              sendMessage(message);
+              setMessage("");
+            }}
             className="w-[44px] p-[14px]"
           >
             <EnterIcon />
@@ -222,7 +191,7 @@ const ChatBody: React.FC<ChatProps> = ({
         </div>
         {otherUserTyping && (
           <div className="text-red absolute bottom-[185px] left-[40%] text-sm text-red-600">
-            {toFirstName} is typing...
+            {first_name} is typing...
           </div>
         )}
       </div>

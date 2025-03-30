@@ -1,5 +1,5 @@
 "use client";
-import { useSignUpMutation } from "@/api/auth";
+import { useSignUpMutation } from "@/api/authApi";
 import { BtnLoader } from "@/components/shared/btnLoader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ interface Inputs {
 
 const SignUpForm = () => {
   const [signUp, { isLoading }] = useSignUpMutation({});
-  const { toastInfo } = useToastify();
+  const { toastInfo, toastError } = useToastify();
   const router = useRouter();
 
   const {
@@ -62,7 +62,7 @@ const SignUpForm = () => {
         reset();
         router.push(LinkTo.login);
       })
-      .catch((error) => console.log(error));
+      .catch((error) => toastError(error?.data?.message));
   };
 
   return (
@@ -129,7 +129,7 @@ const SignUpForm = () => {
               containerClassName="grid gap-1"
             />
             <Button
-              variant="secondary"
+              variant="danger"
               isLoading={isLoading}
               icon={<BtnLoader />}
               type="submit"
@@ -139,12 +139,12 @@ const SignUpForm = () => {
           </div>
         </form>
         <p>
-          <a
+          <Link
             href="/dashboard/signin/forgot_password"
             className="text-sm font-medium text-white"
           >
             Forgot your password?
-          </a>
+          </Link>
         </p>
         <p>
           <Link href={LinkTo.login} className="text-sm font-medium text-white">

@@ -8,7 +8,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import SkillsInput from "../shared/skillsInput";
 import { Iuser } from "@/@types/user";
-import { useUpdateProfileMutation } from "@/api/user";
+import { useUpdateProfileMutation } from "@/api/userApi";
 import useToastify from "@/hooks/useToastify";
 
 // Схема валидации

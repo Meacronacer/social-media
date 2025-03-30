@@ -1,16 +1,17 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "./slices/authSlice";
-import { authApi } from "@/api/auth";
+import { authApi } from "@/api/authApi";
 import chatSlice from "./slices/chatSlice";
+import { BaseApi } from "@/utils/baseFetch";
 
 export const store = configureStore({
   reducer: {
     authSlice,
     chatSlice,
-    [authApi.reducerPath]: authApi.reducer,
+    [BaseApi.reducerPath]: authApi.reducer,
   },
   middleware: (getDefaultMiddleware) => {
-    return getDefaultMiddleware().concat(authApi.middleware);
+    return getDefaultMiddleware().concat(BaseApi.middleware);
   },
   devTools: process.env.REACT_APP_ENV !== "dev" ? false : true,
 });

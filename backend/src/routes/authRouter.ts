@@ -9,12 +9,26 @@ router.post(
   "/sign-up",
   body("email").isEmail(),
   body("password").isLength({ min: 8, max: 32 }),
-  authController.signUp.bind(authController)
+  authController.registration.bind(authController)
 );
 
-router.post("/sign-in", authController.signIn.bind(authController));
+router.post("/sign-in", authController.login.bind(authController));
 router.post("/logout", authController.logout.bind(authController));
 router.get("/activate/:link", authController.activation.bind(authController));
+router.post(
+  "/request-password-reset",
+  authController.requestPasswordReset.bind(authController)
+);
+router.get(
+  "/validate-reset-token",
+  authController.checkResetTokenValidity.bind(authController)
+);
+router.post(
+  "/reset-password",
+  authController.resetPassword.bind(authController)
+);
+
+//for refresh refreshToken
 router.get("/refresh", authController.refresh.bind(authController));
 
 router.get(
@@ -25,7 +39,7 @@ router.get(
 router.get(
   "/google/callback",
   passport.authenticate("google", { session: false }),
-  authController.handleGoogleCallback.bind(authController)
+  authController.loginWithGoogle.bind(authController)
 );
 
 export default router;

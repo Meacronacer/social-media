@@ -6,21 +6,16 @@ import { Button } from "../ui/button";
 import EnterIcon from "@/components/svgs/enter.svg";
 import ArrowCornerIcon from "@/components/svgs/arrow-corner.svg";
 import { useRouter } from "next/navigation";
-import { IAuthor, Iuser } from "@/@types/user";
+import { Iuser } from "@/@types/user";
 import { useUserActions } from "@/hooks/useUserActions";
 
-export interface SearchItemprops extends Iuser {
-  onSelectUser?: (user: IAuthor) => void; // Новый пропс
-}
-
-const SearchItem: React.FC<SearchItemprops> = ({
+const SearchItem: React.FC<Iuser> = ({
   _id,
   first_name,
   second_name,
   img_url,
   description,
   skills,
-  onSelectUser, // Деструктурируем новый пропс
 }) => {
   const router = useRouter();
   const { handleSelectUser } = useUserActions();

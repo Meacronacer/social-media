@@ -1,23 +1,20 @@
-"use client";
-import { useEffect, useState, useCallback, useRef } from "react";
-import { useGetAllActiveChatsQuery } from "@/api/chats";
+import { useEffect, useCallback, useState } from "react";
+import { useGetAllActiveChatsQuery } from "@/api/chatsApi";
 import { useSocket } from "@/providers/socketIoProvider";
 import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import {
+  addNewChat,
+  updateChat,
+  setActiveChats,
+} from "@/redux/slices/chatSlice";
 import { clearNewUser } from "@/redux/slices/chatSlice";
 import { getChatId } from "@/utils/getChatId";
+import { IAuthor } from "@/@types/user";
 
 export const useChats = (debouncedSearchTerm: string) => {
-  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
-  const [activeChats, setActiveChats] = useState<any[]>([]);
-  const activeChatsRef = useRef<any[]>([]); // Ссылка на актуальные чаты
-  const [user, setUser] = useState<{
-    _id: string;
-    first_name: string;
-    second_name: string;
-    img_url: string | undefined;
-  } | null>(null);
-
+  const [user, setUser] = useState<IAuthor | null>(null);
   const dispatch = useAppDispatch();
+  const activeChats = useAppSelector((state) => state.chatSlice.activeChats);
   const { socket } = useSocket();
   const currentUserId = useAppSelector((state) => state.authSlice.user?._id);
   const { _id, first_name, second_name, img_url } = useAppSelector(
@@ -26,110 +23,81 @@ export const useChats = (debouncedSearchTerm: string) => {
 
   const {
     data = [],
-    isLoading: isChatsLoading, // Переименуем для ясности
+    isLoading: isChatsLoading,
     isSuccess,
+    isFetching,
     refetch,
-    isFetching, // Добавляем отслеживание состояния запроса
   } = useGetAllActiveChatsQuery(debouncedSearchTerm);
 
   useEffect(() => {
     if (data && isSuccess) {
-      setActiveChats(data);
-      activeChatsRef.current = data; // Обновляем ссылку на актуальные чаты
+      dispatch(setActiveChats(data));
     }
-  }, [data, isSuccess]);
+  }, [data, isSuccess, dispatch]);
 
+  // Обработка нового пользователя для создания чата
   useEffect(() => {
     if (_id && first_name && second_name && isSuccess) {
       const newUser = { _id, first_name, second_name, img_url };
       const chatId = getChatId(currentUserId, _id);
+      // Если чат отсутствует, добавляем его в глобальное состояние
 
-      // Проверяем наличие чата по ссылке, а не по стейту
-      const exists = activeChatsRef.current.some((chat) => chat._id === chatId);
+      console.log("check chat exist", chatId);
+      if (!activeChats.some((chat) => chat._id === chatId)) {
+        const newChat = {
+          _id: chatId,
+          participants: { _id, first_name, second_name, img_url },
+          lastMessage: null,
+          unreadMessages: {},
+          // Добавьте другие необходимые поля чата
+        };
 
-      if (!exists) {
-        setActiveChats((prevChats) => {
-          const updatedChats = [
-            { _id: chatId, participants: newUser },
-            ...prevChats,
-          ];
-          activeChatsRef.current = updatedChats; // Обновляем ссылку на актуальные чаты
-          return updatedChats;
-        });
+        dispatch(addNewChat(newChat));
+        setUser(newUser);
         dispatch(clearNewUser());
       }
-
-      setUser(newUser);
-      setSelectedRoom(_id);
-      joinRoom(_id, true);
     }
-  }, [_id, first_name, second_name, img_url, isSuccess, dispatch]);
+  }, [
+    _id,
+    first_name,
+    second_name,
+    img_url,
+    isSuccess,
+    dispatch,
+    currentUserId,
+    activeChats,
+  ]);
 
+  // Обработка сокет-события для обновления сайдбара
   useEffect(() => {
     socket?.on("updateSidebar", ({ roomId, lastMessage, unreadMessages }) => {
-      setActiveChats((prev) => {
-        const updatedChats = prev.map((chat) =>
-          chat._id === roomId
-            ? {
-                ...chat,
-                lastMessage: lastMessage ?? chat.lastMessage,
-                unreadMessages,
-              }
-            : chat,
-        );
-        // Сортируем чаты по времени последнего сообщения (от новых к старым)
-        updatedChats.sort((a, b) => {
-          const timeA = a.lastMessage?.timestamp
-            ? new Date(a.lastMessage.timestamp).getTime()
-            : 0;
-          const timeB = b.lastMessage?.timestamp
-            ? new Date(b.lastMessage.timestamp).getTime()
-            : 0;
-          return timeB - timeA;
-        });
-        activeChatsRef.current = updatedChats;
-        return updatedChats;
-      });
+      dispatch(updateChat({ roomId, data: { lastMessage, unreadMessages } }));
     });
 
     refetch();
     return () => {
       socket?.off("updateSidebar");
+      setUser(null);
     };
-  }, [socket]);
+  }, [socket, dispatch, refetch]);
 
-  const joinRoom = useCallback(
-    (toUserId: string, createNewChat = false) => {
-      socket?.emit("joinRoom", { currentUserId, toUserId });
-
-      if (!createNewChat) {
-        setActiveChats((prevChats) => {
-          const updatedChats = prevChats.map((chat) =>
-            chat.participants._id === toUserId
-              ? { ...chat, unreadCount: 0 }
-              : chat,
-          );
-
-          activeChatsRef.current = updatedChats; // Обновляем ссылку на актуальные чаты
-          return updatedChats;
+  const markAsRead = useCallback(
+    (toUserId: string) => {
+      if (socket && currentUserId && toUserId) {
+        socket?.emit("markAsRead", {
+          currentUserId,
+          toUserId,
         });
-
-        if (currentUserId) {
-          socket?.emit("markAsRead", { currentUserId, toUserId });
-        }
       }
     },
     [socket, currentUserId],
   );
 
   return {
-    selectedRoom,
-    setSelectedRoom,
-    activeChats,
-    setActiveChats,
+    markAsRead,
     user,
-    isChatsLoading: isChatsLoading || isFetching,
     setUser,
-    joinRoom,
+    activeChats,
+    isChatsLoading: isChatsLoading || isFetching,
   };
 };

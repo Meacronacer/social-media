@@ -1,3 +1,4 @@
+import { IAuthor } from "@/@types/user";
 import { BaseApi, baseHeadersOptions } from "@/utils/baseFetch";
 
 export const followersApi = BaseApi.injectEndpoints({
@@ -11,43 +12,47 @@ export const followersApi = BaseApi.injectEndpoints({
         method: "GET",
         headers: baseHeadersOptions,
       }),
-      providesTags: ["Subscriptions"],
+      providesTags: ["SubscriptionsList"],
     }),
-
-    subscribe: builder.mutation({
+    subscribe: builder.mutation<string, string>({
       query: (targetUserId) => ({
         url: `api/subscriptions/subscribe`,
         method: "POST",
         headers: baseHeadersOptions,
         body: JSON.stringify({ targetUserId }),
       }),
-      invalidatesTags: ["User", "Subscriptions"],
+      invalidatesTags: ["User", "SubscriptionsList"],
     }),
-
-    unSubscribe: builder.mutation({
+    unSubscribe: builder.mutation<{ message: string }, string>({
       query: (targetUserId) => ({
         url: `api/subscriptions/unsubscribe`,
         method: "POST",
         headers: baseHeadersOptions,
         body: JSON.stringify({ targetUserId }),
       }),
-      invalidatesTags: ["User", "Subscriptions"],
+      invalidatesTags: ["User", "SubscriptionsList"],
     }),
-    getFollowers: builder.query({
+    getFollowers: builder.query<IAuthor[], string | undefined>({
       query: (targetUserId) => ({
         url: `api/subscriptions/${targetUserId}/followers`,
         method: "GET",
         headers: baseHeadersOptions,
       }),
-      providesTags: ["Subscriptions"],
+      providesTags: (result, error, targetUserId) => [
+        { type: "SubscriptionsList", id: targetUserId },
+        "SubscriptionsList",
+      ],
     }),
-    getFollowing: builder.query({
+    getFollowing: builder.query<IAuthor[], string | undefined>({
       query: (targetUserId) => ({
         url: `api/subscriptions/${targetUserId}/following`,
         method: "GET",
         headers: baseHeadersOptions,
       }),
-      providesTags: ["Subscriptions"],
+      providesTags: (result, error, targetUserId) => [
+        { type: "SubscriptionsList", id: targetUserId },
+        "SubscriptionsList",
+      ],
     }),
   }),
 });

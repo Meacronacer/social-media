@@ -1,6 +1,5 @@
 import { Iuser } from "@/@types/user";
 import { createSlice } from "@reduxjs/toolkit";
-import { authApi } from "@/api/auth";
 
 const userDefault = {
   _id: "",
@@ -13,6 +12,10 @@ const userDefault = {
   isActivated: undefined,
   exp: undefined,
   iat: undefined,
+  followers: [],
+  following: [],
+  postsCount: undefined,
+  followingCount: undefined,
 };
 
 export interface initialState {

@@ -1,57 +1,130 @@
 "use client";
 
-import { Iuser } from "@/@types/user";
+import { IAuthor } from "@/@types/user";
 import {
   useGetFollowersQuery,
   useGetFollowingQuery,
   useSubscribeMutation,
   useUnSubscribeMutation,
-} from "@/api/subscriptions";
+} from "@/api/subscriptionsApi";
 import { Button } from "@/components/ui/button";
 import { useAppSelector } from "@/hooks/useRedux";
 import Image from "next/image";
 import React, { useState } from "react";
 import SubscriptionItemSkeleton from "../skeletons/subscriptionsItemSkeleton";
-import { useRouter } from "next/navigation";
-
-type IUSER = Pick<Iuser, "_id" | "img_url" | "first_name" | "second_name">;
+import { useParams, useRouter } from "next/navigation";
 
 const SubscribersClientPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"followers" | "following">(
     "followers",
   );
-  const userId = useAppSelector((state) => state.authSlice.user._id);
+  const currentUser = useAppSelector((state) => state.authSlice.user);
   const router = useRouter();
+  const params = useParams();
+  const userId = Array.isArray(params.userId)
+    ? params.userId[0]
+    : params.userId;
+
   const [subscribe] = useSubscribeMutation();
   const [unSubscribe] = useUnSubscribeMutation();
 
-  // Получаем список подписчиков (followers) всегда, если есть userId
   const { data: followers = [], isLoading: loadingFollowers } =
-    useGetFollowersQuery(userId, {
-      skip: !userId,
-    });
-
-  // Получаем список подписок (following) всегда, если есть userId
+    useGetFollowersQuery(userId, { skip: !userId });
   const { data: following = [], isLoading: loadingFollowing } =
-    useGetFollowingQuery(userId, {
-      skip: !userId,
-    });
+    useGetFollowingQuery(userId, { skip: !userId });
 
-  // Функция для проверки взаимности подписки
-  const isMutualFollow = (user: IUSER) => {
-    return following.some((f: IUSER) => f._id === user._id);
-  };
+  // Функция для определения свойств кнопки в зависимости от отношений
+  const getButtonProps = (user: IAuthor) => {
+    // Не рендерим кнопку для собственного аккаунта
+    if (user._id === currentUser?._id) {
+      return null;
+    }
 
-  const subscribeHandler = (_id: string | undefined) => {
-    if (_id) {
-      subscribe(_id).unwrap().catch();
+    // Определяем, подписан ли текущий пользователь на данного пользователя
+    const isFollowed = following?.some((u: IAuthor) => u._id === user._id);
+    // Определяем, является ли данный пользователь подписчиком текущего пользователя
+    const isFollower = followers?.some((u: IAuthor) => u._id === user._id);
+
+    if (activeTab === "following") {
+      return {
+        text: isFollowed ? "Following" : "Follow",
+        onClick: () => {
+          if (user._id) {
+            if (isFollowed) {
+              unSubscribe(user._id).unwrap();
+            } else {
+              subscribe(user._id).unwrap();
+            }
+          }
+        },
+        variant: isFollowed ? ("outline" as const) : ("danger" as const),
+      };
+    }
+
+    if (isFollowed) {
+      return {
+        text: "Following",
+        onClick: () => {
+          if (user._id) {
+            unSubscribe(user._id).unwrap();
+          }
+        },
+        variant: "outline" as const,
+      };
+    } else if (isFollower) {
+      return {
+        text: "Follow back",
+        onClick: () => {
+          if (user._id) {
+            subscribe(user._id).unwrap();
+          }
+        },
+        variant: "danger" as const,
+      };
+    } else {
+      return {
+        text: "Follow",
+        onClick: () => {
+          if (user._id) {
+            subscribe(user._id).unwrap();
+          }
+        },
+        variant: "danger" as const,
+      };
     }
   };
 
-  const UnsubscribeHandler = (_id: string | undefined) => {
-    if (_id) {
-      unSubscribe(_id).unwrap().catch();
-    }
+  // Рендерим элемент списка пользователя
+  const renderUserItem = (user: IAuthor) => {
+    const buttonProps = getButtonProps(user);
+    return (
+      <li key={user._id} className="flex items-center gap-5 border-b p-4">
+        <div className="flex w-[380px] items-center justify-between gap-3">
+          <div className="flex items-center gap-x-3">
+            <Image
+              onClick={() => router.push(`/${user._id}`)}
+              src={user.img_url || "/avatar.png"}
+              alt="avatar"
+              width={40}
+              height={40}
+              className="h-10 w-10 cursor-pointer rounded-full"
+            />
+            <p
+              title={`${user.first_name} ${user.second_name}`}
+              onClick={() => router.push(`/${user._id}`)}
+              className="cursor-pointer truncate whitespace-nowrap text-lg"
+            >
+              {user.first_name} {user.second_name}
+            </p>
+          </div>
+          {buttonProps && (
+            <Button onClick={buttonProps.onClick} variant={buttonProps.variant}>
+              {buttonProps.text}
+            </Button>
+          )}
+        </div>
+      </li>
+    );
   };
 
   return (
@@ -66,7 +139,7 @@ const SubscribersClientPage: React.FC = () => {
               : "bg-gray-200 text-gray-800"
           }`}
         >
-          My Followers
+          Followers
         </button>
         <button
           onClick={() => setActiveTab("following")}
@@ -83,7 +156,6 @@ const SubscribersClientPage: React.FC = () => {
       <div>
         {activeTab === "followers" && (
           <ul className="flex flex-col gap-y-1">
-            {loadingFollowers && <li>Загрузка...</li>}
             {loadingFollowers ? (
               <>
                 <SubscriptionItemSkeleton />
@@ -91,48 +163,7 @@ const SubscribersClientPage: React.FC = () => {
                 <SubscriptionItemSkeleton />
               </>
             ) : (
-              followers.map((user: IUSER) => (
-                <li
-                  key={user._id}
-                  className="flex items-center gap-5 border-b p-4"
-                >
-                  <div className="flex w-[380px] items-center justify-between gap-3">
-                    <div className="flex items-center gap-x-3">
-                      <Image
-                        onClick={() => router.push(`/${user._id}`)}
-                        src={user.img_url || "/avatar.png"}
-                        alt="avatar"
-                        width={40}
-                        height={40}
-                        className="h-10 w-10 cursor-pointer rounded-full"
-                      />
-                      <span
-                        onClick={() => router.push(`/${user._id}`)}
-                        className="cursor-pointer text-lg"
-                      >
-                        {user.first_name} {user.second_name}
-                      </span>
-                    </div>
-                    {isMutualFollow(user) ? (
-                      <Button
-                        onClick={() => UnsubscribeHandler(user._id)}
-                        className="w-26 h-10"
-                        variant="outline"
-                      >
-                        Following
-                      </Button>
-                    ) : (
-                      <Button
-                        onClick={() => subscribeHandler(user._id)}
-                        className="w-26 h-10"
-                        variant="danger"
-                      >
-                        Follow Back
-                      </Button>
-                    )}
-                  </div>
-                </li>
-              ))
+              followers.map(renderUserItem)
             )}
           </ul>
         )}
@@ -145,38 +176,7 @@ const SubscribersClientPage: React.FC = () => {
                 <SubscriptionItemSkeleton />
               </>
             ) : (
-              following.map((user: IUSER) => (
-                <li
-                  key={user._id}
-                  className="flex items-center gap-5 border-b p-4"
-                >
-                  <div className="flex w-[380px] items-center justify-between gap-3">
-                    <div className="flex items-center gap-x-3">
-                      <Image
-                        onClick={() => router.push(`/${user._id}`)}
-                        src={user.img_url || "/avatar.png"}
-                        alt="avatar"
-                        width={40}
-                        height={40}
-                        className="h-10 w-10 cursor-pointer rounded-full"
-                      />
-                      <span
-                        onClick={() => router.push(`/${user._id}`)}
-                        className="cursor-pointer text-lg"
-                      >
-                        {user.first_name} {user.second_name}
-                      </span>
-                    </div>
-                    <Button
-                      onClick={() => UnsubscribeHandler(user._id)}
-                      className="w-26 h-10"
-                      variant="outline"
-                    >
-                      Unsubscribe
-                    </Button>
-                  </div>
-                </li>
-              ))
+              following.map(renderUserItem)
             )}
           </ul>
         )}
