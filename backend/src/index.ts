@@ -18,7 +18,7 @@ const startServer = async () => {
     createSocketServer(server);
 
     // Server start
-    server.listen(config.PORT, "0.0.0.0", () => {
+    server.listen(config.PORT, () => {
       logger.info(
         `Server running in ${config.NODE_ENV} mode on port ${config.PORT}`
       );

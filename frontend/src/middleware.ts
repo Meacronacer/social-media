@@ -18,8 +18,8 @@ export async function middleware(request: NextRequest) {
       const secret = new TextEncoder().encode(accessSecretKey);
       await jwtVerify(accessToken, secret);
       isAccessValid = true;
-    } catch (error) {
-      console.error("Access token invalid:", error);
+    } catch {
+      console.error("Access token expired");
     }
   }
 
