@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
   let isAccessValid = false;
   let isRefreshValid = false;
 
-  console.error(accessSecretKey, refreshSecretKey);
+  console.error(accessToken, refreshToken);
 
   // Проверка валидности access токена
   if (accessToken && accessSecretKey) {
