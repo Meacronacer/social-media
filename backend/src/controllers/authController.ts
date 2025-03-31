@@ -5,7 +5,7 @@ import tokenService from "../services/token.service";
 import UserDto from "../dtos/user-dto";
 import { validationResult } from "express-validator";
 import { IUser } from "../models/User";
-//import { config } from "../config/env";
+import { config } from "../config/env";
 
 class AuthController {
   async registration(
@@ -46,18 +46,18 @@ class AuthController {
         secure: true,
         sameSite: "none",
         path: "/",
-        // domain: config.isProduction
-        //   ? "social-media-xok6.onrender.com"
-        //   : undefined,
+        domain: config.isProduction
+          ? "social-media-production-b56c.up.railway.app"
+          : undefined,
       });
       res.cookie("refreshToken", userData.refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: "none",
         path: "/",
-        // domain: config.isProduction
-        //   ? "social-media-xok6.onrender.com"
-        //   : undefined,
+        domain: config.isProduction
+          ? "social-media-production-b56c.up.railway.app"
+          : undefined,
       });
       res.status(200).json({ message: "you logged in" });
     } catch (e) {
@@ -82,19 +82,19 @@ class AuthController {
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          path: "/", // Явно указываем корневой путь
-          // domain: config.isProduction
-          //   ? "social-media-xok6.onrender.com"
-          //   : undefined,
+          path: "/",
+          domain: config.isProduction
+            ? "social-media-production-b56c.up.railway.app"
+            : undefined,
         });
         res.cookie("refreshToken", refreshToken, {
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          path: "/", // Явно указываем корневой путь
-          // domain: config.isProduction
-          //   ? "social-media-xok6.onrender.com"
-          //   : undefined,
+          path: "/",
+          domain: config.isProduction
+            ? "social-media-production-b56c.up.railway.app"
+            : undefined,
         });
 
         res.redirect(process.env.CLIENT_URL as string);
@@ -119,9 +119,9 @@ class AuthController {
           secure: true,
           sameSite: "none",
           path: "/",
-          // domain: config.isProduction
-          //   ? "social-media-xok6.onrender.com"
-          //   : undefined,
+          domain: config.isProduction
+            ? "social-media-production-b56c.up.railway.app"
+            : undefined,
         });
         res.json({ message: "Access token refreshed!" });
       }
