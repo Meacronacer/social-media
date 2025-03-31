@@ -47,7 +47,7 @@ class AuthController {
         sameSite: "none",
         path: "/", // Явно указываем корневой путь
         domain: config.isProduction
-          ? new URL(process.env.API_URL as string).hostname
+          ? "social-media-xok6.onrender.com" // или получайте через new URL(...) и убедитесь, что нет ведущей точки
           : undefined,
       });
       res.cookie("refreshToken", userData.refreshToken, {
@@ -56,7 +56,7 @@ class AuthController {
         sameSite: "none",
         path: "/", // Явно указываем корневой путь
         domain: config.isProduction
-          ? new URL(process.env.API_URL as string).hostname
+          ? "social-media-xok6.onrender.com" // или получайте через new URL(...) и убедитесь, что нет ведущей точки
           : undefined,
       });
       res.status(200).json({ message: "you logged in" });
@@ -84,7 +84,7 @@ class AuthController {
           sameSite: "none",
           path: "/", // Явно указываем корневой путь
           domain: config.isProduction
-            ? new URL(process.env.API_URL as string).hostname
+            ? "social-media-xok6.onrender.com" // или получайте через new URL(...) и убедитесь, что нет ведущей точки
             : undefined,
         });
         res.cookie("refreshToken", refreshToken, {
@@ -93,7 +93,7 @@ class AuthController {
           sameSite: "none",
           path: "/", // Явно указываем корневой путь
           domain: config.isProduction
-            ? new URL(process.env.API_URL as string).hostname
+            ? "social-media-xok6.onrender.com" // или получайте через new URL(...) и убедитесь, что нет ведущей точки
             : undefined,
         });
 
@@ -120,7 +120,7 @@ class AuthController {
           sameSite: "none",
           path: "/", // Явно указываем корневой путь
           domain: config.isProduction
-            ? new URL(process.env.API_URL as string).hostname
+            ? "social-media-xok6.onrender.com" // или получайте через new URL(...) и убедитесь, что нет ведущей точки
             : undefined,
         });
         res.json({ message: "Access token refreshed!" });
