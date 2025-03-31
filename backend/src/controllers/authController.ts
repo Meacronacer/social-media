@@ -45,13 +45,17 @@ class AuthController {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        domain: config.isProduction ? process.env.API_URL : undefined,
+        domain: config.isProduction
+          ? new URL(process.env.API_URL as string).hostname
+          : undefined,
       });
       res.cookie("refreshToken", userData.refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        domain: config.isProduction ? process.env.API_URL : undefined,
+        domain: config.isProduction
+          ? new URL(process.env.API_URL as string).hostname
+          : undefined,
       });
       res.status(200).json({ message: "you logged in" });
     } catch (e) {
@@ -76,13 +80,17 @@ class AuthController {
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          domain: config.isProduction ? process.env.API_URL : undefined,
+          domain: config.isProduction
+            ? new URL(process.env.API_URL as string).hostname
+            : undefined,
         });
         res.cookie("refreshToken", refreshToken, {
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          domain: config.isProduction ? process.env.API_URL : undefined,
+          domain: config.isProduction
+            ? new URL(process.env.API_URL as string).hostname
+            : undefined,
         });
 
         res.redirect(process.env.CLIENT_URL as string);
@@ -106,7 +114,9 @@ class AuthController {
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          domain: config.isProduction ? process.env.API_URL : undefined,
+          domain: config.isProduction
+            ? new URL(process.env.API_URL as string).hostname
+            : undefined,
         });
         res.json({ message: "Access token refreshed!" });
       }
