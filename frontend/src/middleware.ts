@@ -29,8 +29,8 @@ export async function middleware(request: NextRequest) {
       const secret = new TextEncoder().encode(refreshSecretKey);
       await jwtVerify(refreshToken, secret);
       isRefreshValid = true;
-    } catch (error) {
-      console.error("Refresh token invalid:", error);
+    } catch {
+      console.error("Refresh token invalid or expired");
     }
   }
 
