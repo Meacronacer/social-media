@@ -261,3 +261,7 @@
 {"level":"info","message":"User connected: Fgrqpm8piakTiU8KAAAB","timestamp":"2025-03-31T04:35:43.236Z"}
 {"level":"info","message":"User disconnected: Fgrqpm8piakTiU8KAAAB","timestamp":"2025-03-31T04:35:46.489Z"}
 {"level":"warn","message":"MongoDB disconnected","timestamp":"2025-03-31T04:35:48.312Z"}
+{"level":"info","message":"MongoDB connected successfully","timestamp":"2025-03-31T05:06:40.303Z"}
+{"level":"info","message":"Connected to MongoDB (development environment)","timestamp":"2025-03-31T05:06:40.310Z"}
+{"level":"info","message":"Server running in development mode on port 8000","timestamp":"2025-03-31T05:06:40.321Z"}
+{"level":"info","message":"User connected: xKxgeDRmuLPzEXNKAAAC","timestamp":"2025-03-31T05:07:02.000Z"}

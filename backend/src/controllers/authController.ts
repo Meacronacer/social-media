@@ -45,6 +45,7 @@ class AuthController {
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        path: "/", // Явно указываем корневой путь
         domain: config.isProduction
           ? new URL(process.env.API_URL as string).hostname
           : undefined,
@@ -53,6 +54,7 @@ class AuthController {
         httpOnly: true,
         secure: true,
         sameSite: "none",
+        path: "/", // Явно указываем корневой путь
         domain: config.isProduction
           ? new URL(process.env.API_URL as string).hostname
           : undefined,
@@ -80,6 +82,7 @@ class AuthController {
           httpOnly: true,
           secure: true,
           sameSite: "none",
+          path: "/", // Явно указываем корневой путь
           domain: config.isProduction
             ? new URL(process.env.API_URL as string).hostname
             : undefined,
@@ -88,6 +91,7 @@ class AuthController {
           httpOnly: true,
           secure: true,
           sameSite: "none",
+          path: "/", // Явно указываем корневой путь
           domain: config.isProduction
             ? new URL(process.env.API_URL as string).hostname
             : undefined,
@@ -114,6 +118,7 @@ class AuthController {
           httpOnly: true,
           secure: true,
           sameSite: "none",
+          path: "/", // Явно указываем корневой путь
           domain: config.isProduction
             ? new URL(process.env.API_URL as string).hostname
             : undefined,
