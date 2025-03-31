@@ -8,7 +8,7 @@ import { Mutex } from "async-mutex";
 import { LinkTo } from "./links";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: "http://localhost:8000",
+  baseUrl: process.env.NEXT_PUBLIC_API_URL,
   credentials: "include",
 });
 
