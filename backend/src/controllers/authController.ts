@@ -5,6 +5,7 @@ import tokenService from "../services/token.service";
 import UserDto from "../dtos/user-dto";
 import { validationResult } from "express-validator";
 import { IUser } from "../models/User";
+import { config } from "../config/env";
 
 class AuthController {
   async registration(
@@ -43,12 +44,14 @@ class AuthController {
       res.cookie("accessToken", userData.accessToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "none",
+        domain: config.isProduction ? process.env.API_URL : undefined,
       });
       res.cookie("refreshToken", userData.refreshToken, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: "none",
+        domain: config.isProduction ? process.env.API_URL : undefined,
       });
       res.status(200).json({ message: "you logged in" });
     } catch (e) {
@@ -73,11 +76,13 @@ class AuthController {
           httpOnly: true,
           secure: true,
           sameSite: "none",
+          domain: config.isProduction ? process.env.API_URL : undefined,
         });
         res.cookie("refreshToken", refreshToken, {
           httpOnly: true,
           secure: true,
           sameSite: "none",
+          domain: config.isProduction ? process.env.API_URL : undefined,
         });
 
         res.redirect(process.env.CLIENT_URL as string);
@@ -99,6 +104,9 @@ class AuthController {
       if (userData) {
         res.cookie("accessToken", userData.accessToken, {
           httpOnly: true,
+          secure: true,
+          sameSite: "none",
+          domain: config.isProduction ? process.env.API_URL : undefined,
         });
         res.json({ message: "Access token refreshed!" });
       }
