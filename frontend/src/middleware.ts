@@ -47,6 +47,7 @@ export async function middleware(request: NextRequest) {
     }
     // Если токены невалидны, очищаем куки и разрешаем остаться
     if (!isAccessValid && !isRefreshValid) {
+      console.error("access & refresh tokens are not valids, deleting it!");
       const response = NextResponse.next();
       response.cookies.delete("accessToken");
       response.cookies.delete("refreshToken");
