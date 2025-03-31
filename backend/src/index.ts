@@ -15,7 +15,7 @@ const startServer = async () => {
     const server = http.createServer(app);
 
     // WebSocket initialization
-    createSocketServer(server);
+    //createSocketServer(server);
 
     // Server start
     server.listen(config.PORT, "0.0.0.0", () => {
