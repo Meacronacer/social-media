@@ -45,13 +45,11 @@ class AuthController {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        domain: "tik-talk-nine.vercel.app",
       });
       res.cookie("refreshToken", userData.refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: "none",
-        domain: "tik-talk-nine.vercel.app",
       });
       res.status(200).json({ message: "you logged in" });
     } catch (e) {
@@ -76,13 +74,11 @@ class AuthController {
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          domain: "tik-talk-nine.vercel.app",
         });
         res.cookie("refreshToken", refreshToken, {
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          domain: "tik-talk-nine.vercel.app",
         });
 
         res.redirect(process.env.CLIENT_URL as string);
@@ -106,7 +102,6 @@ class AuthController {
           httpOnly: true,
           secure: true,
           sameSite: "none",
-          domain: "tik-talk-nine.vercel.app",
         });
         res.json({ message: "Access token refreshed!" });
       }
