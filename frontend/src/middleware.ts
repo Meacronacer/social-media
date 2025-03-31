@@ -1,8 +1,6 @@
-import { NextResponse, NextRequest } from "next/server";
-import { jwtVerify } from "jose";
-import { LinkTo } from "@/utils/links";
+import { NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function middleware() {
   // const accessToken = request.cookies.get("accessToken")?.value;
   // const refreshToken = request.cookies.get("refreshToken")?.value;
   // const currentUrl = request.nextUrl;
