@@ -1,5 +1,5 @@
 "use client";
-// socketIoProvider.tsx
+
 import React, {
   createContext,
   useContext,
@@ -14,7 +14,7 @@ interface SocketContextValue {
   socket: Socket | null;
 }
 
-const SERVER_URL = process.env.NEXT_PUBLIC_API_URL
+const SERVER_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Создаем контекст
 const SocketContext = createContext<SocketContextValue>({ socket: null });
