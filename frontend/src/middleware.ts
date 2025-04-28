@@ -9,6 +9,9 @@ export async function middleware(request: NextRequest) {
   const accessSecretKey = process.env.JWT_ACCESS_SECRET;
   const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
 
+  console.log("middleware ACCESS:", accessToken);
+  console.log("middleware REFRESH:", refreshToken);
+
   let isAccessValid = false;
   let isRefreshValid = false;
 

@@ -1,57 +1,38 @@
-import dotenv from "dotenv";
-dotenv.config();
-
-import express, { Application } from "express";
-import passport from "./config/passport";
-import mongoose from "mongoose";
-import authRouter from "./routes/authRouter";
-import userRouter from "./routes/userRouter";
-import chatRouter from "./routes/chatRouter";
-import postRouter from "./routes/postRouter";
-import commentRouter from "./routes/commentRouter";
-import subscriptionRouter from "./routes/subscriptionsRouter";
-import cookieParser from "cookie-parser";
-import cors from "cors";
-import errorMiddleware from "./middlewares/error-middleware";
-import { createSocketServer } from "./socket"; // Импорт логики Socket.io
+import { createApp } from "./app";
+import { config } from "./config/env";
+import { connectDatabase } from "./config/database";
 import http from "http";
+import { createSocketServer } from "./socket";
+import logger from "./config/logger";
 
-// Инициализация приложения
-const app: Application = express();
-const server = http.createServer(app);
-
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
-app.use(passport.initialize());
-app.use(
-  cors({
-    credentials: true,
-    origin: process.env.CLIENT_URL,
-  })
-);
-app.use("/api/auth", authRouter);
-app.use("/api/users", userRouter);
-app.use("/api/chats", chatRouter);
-app.use("/api/posts", postRouter);
-app.use("/api/comment", commentRouter);
-app.use("/api/subscriptions", subscriptionRouter);
-
-app.use(errorMiddleware);
-// Подключаем Socket.io
-createSocketServer(server);
-
-const PORT = process.env.PORT || 8000;
-const uri = process.env.MONGODB_URI || "";
-
-// Запуск сервера
-const start = async () => {
+const startServer = async () => {
   try {
-    await mongoose.connect(uri);
-    server.listen(PORT, () => console.log(`Server is running on PORT ${PORT}`));
-  } catch (e) {
-    console.error("Error starting the server:", e);
+    // Сначала подключаем базу данных
+    await connectDatabase();
+
+    // Затем создаем приложение и сервер
+    const app = createApp();
+    const server = http.createServer(app);
+
+    // WebSocket initialization
+    createSocketServer(server);
+
+    // Server start
+    server.listen(config.PORT, () => {
+      logger.info(
+        `Server running in ${config.NODE_ENV} mode on port ${config.PORT}`
+      );
+    });
+
+    // Handle server errors
+    server.on("error", (error) => {
+      logger.error("Server error:", error);
+      process.exit(1);
+    });
+  } catch (error) {
+    logger.error("Failed to start server:", error);
+    process.exit(1);
   }
 };
 
-start();
+startServer();
