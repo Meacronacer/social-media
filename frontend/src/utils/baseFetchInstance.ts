@@ -7,8 +7,10 @@ import {
 import { Mutex } from "async-mutex";
 import { LinkTo } from "./links";
 
+export const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.NEXT_PUBLIC_API_URL,
+  baseUrl: process.env.API_URL,
   credentials: "include",
 });
 

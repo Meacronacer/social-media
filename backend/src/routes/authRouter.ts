@@ -23,6 +23,7 @@ router.get(
   "/validate-reset-token",
   authController.checkResetTokenValidity.bind(authController)
 );
+router.get("/vefiry-tokens", authController.verifyTokens.bind(authController));
 router.post(
   "/reset-password",
   authController.resetPassword.bind(authController)

@@ -172,6 +172,26 @@ class AuthController {
     }
   }
 
+  async verifyTokens(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { accessToken, refreshToken } = req.cookies;
+      const acessData = tokenService.validateAccessToken(accessToken);
+      const refreshData = tokenService.validateRefreshToken(refreshToken);
+
+      if (!acessData && !refreshData) {
+        res.status(401).json({ message: "Tokens are invalid" });
+        return;
+      }
+      res.status(200).json({ message: "Tokens are valid" });
+    } catch (e) {
+      next(e);
+    }
+  }
+
   async logout(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { refreshToken } = req.cookies;
