@@ -3,14 +3,13 @@ import { NextResponse, NextRequest } from "next/server";
 // import { LinkTo } from "@/utils/links";
 
 export async function middleware(request: NextRequest) {
-  const accessToken = request.cookies.get("accessToken")?.value;
-  const refreshToken = request.cookies.get("refreshToken")?.value;
+  //const accessToken = request.cookies.get("accessToken")?.value;
+  //const refreshToken = request.cookies.get("refreshToken")?.value;
   // const currentUrl = request.nextUrl;
   // const accessSecretKey = process.env.JWT_ACCESS_SECRET;
   // const refreshSecretKey = process.env.JWT_REFRESH_SECRET;
 
-  console.log("middleware ACCESS:", accessToken);
-  console.log("middleware REFRESH:", refreshToken);
+  console.log("RAW COOKIE HEADER:", request.headers.get("cookie"));
 
   // let isAccessValid = false;
   // let isRefreshValid = false;
