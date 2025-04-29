@@ -59,7 +59,7 @@ const PostOrCommentForm: React.FC<Props> = ({
     >
       <Image
         src={img_url || "/avatar.png"}
-        className="h-8 w-8 rounded-[50%]"
+        className="h-8 w-8 rounded-[50%] object-cover object-center"
         width={32}
         height={32}
         alt="avatar"
