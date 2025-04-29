@@ -73,7 +73,8 @@ class PostController {
 
   async updatePost(req: Request, res: Response): Promise<void> {
     try {
-      const { postId, text } = req.body;
+      const { postId } = req.params;
+      const { text } = req.body;
       const userId = (req.user as IUser)?._id;
 
       if (!userId || !text) {

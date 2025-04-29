@@ -289,3 +289,14 @@
 {"level":"info","message":"User disconnected: 9ZmoXfdWGzS0XBNNAAAB","timestamp":"2025-03-31T07:15:38.312Z"}
 {"level":"info","message":"User connected: ON6QVjDYCP5KCPNTAAAE","timestamp":"2025-03-31T07:15:48.901Z"}
 {"level":"info","message":"User disconnected: ON6QVjDYCP5KCPNTAAAE","timestamp":"2025-03-31T07:15:53.539Z"}
+{"level":"info","message":"MongoDB connected successfully","timestamp":"2025-04-29T02:39:12.472Z"}
+{"level":"info","message":"Connected to MongoDB (development environment)","timestamp":"2025-04-29T02:39:12.478Z"}
+{"level":"info","message":"Server running in development mode on port 8000","timestamp":"2025-04-29T02:39:12.490Z"}
+{"level":"info","message":"User connected: SKRY53J7EZmpcyCXAAAB","timestamp":"2025-04-29T02:39:29.508Z"}
+{"level":"info","message":"User disconnected: SKRY53J7EZmpcyCXAAAB","timestamp":"2025-04-29T02:39:35.353Z"}
+{"level":"info","message":"User connected: hsF5OKBdgZEeOkZbAAAE","timestamp":"2025-04-29T02:39:40.240Z"}
+{"level":"info","message":"MongoDB connected successfully","timestamp":"2025-04-29T02:44:59.449Z"}
+{"level":"info","message":"Connected to MongoDB (development environment)","timestamp":"2025-04-29T02:44:59.456Z"}
+{"level":"info","message":"Server running in development mode on port 8000","timestamp":"2025-04-29T02:44:59.466Z"}
+{"level":"info","message":"User connected: zq2rImOcfpN_xeYZAAAB","timestamp":"2025-04-29T02:44:59.569Z"}
+{"level":"warn","message":"MongoDB disconnected","timestamp":"2025-04-29T02:45:17.586Z"}

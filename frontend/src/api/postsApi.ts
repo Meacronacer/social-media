@@ -127,7 +127,7 @@ export const postsApi = BaseApi.injectEndpoints({
         url: `/api/posts/${postId}`,
         method: "PATCH",
         headers: baseHeadersOptions,
-        body: JSON.stringify({ postId, text }),
+        body: JSON.stringify({ text }),
       }),
       async onQueryStarted(
         { postId, profileId },
