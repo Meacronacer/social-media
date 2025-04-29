@@ -5,12 +5,12 @@ import {
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query/react";
 import { Mutex } from "async-mutex";
-//import { LinkTo } from "./links";
+import { LinkTo } from "./links";
 
 export const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: process.env.API_URL,
+  baseUrl: API_URL,
   credentials: "include",
 });
 
@@ -47,7 +47,7 @@ export const baseQueryWithReauth: BaseQueryFn<
           // на сервер куки удаляються если ответ не равен 200
           // Если обновление не удалось – перенаправляем на страницу логина
           if (typeof window !== "undefined") {
-            //window.location.href = LinkTo.login;
+            window.location.href = LinkTo.login;
           }
         }
       } finally {
