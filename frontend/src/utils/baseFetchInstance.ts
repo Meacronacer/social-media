@@ -47,7 +47,7 @@ export const baseQueryWithReauth: BaseQueryFn<
           // на сервер куки удаляються если ответ не равен 200
           // Если обновление не удалось – перенаправляем на страницу логина
           if (typeof window !== "undefined") {
-            window.location.href = LinkTo.login;
+            //window.location.href = LinkTo.login;
           }
         }
       } finally {
