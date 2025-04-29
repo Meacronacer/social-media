@@ -62,7 +62,7 @@ const ProfileSection: React.FC<{ isOwnPage: boolean }> = ({ isOwnPage }) => {
               width={140}
               height={140}
               alt="avatar"
-              className="h-[140px] w-[140px] rounded-[50%]"
+              className="h-[140px] w-[140px] rounded-[50%] object-cover object-center"
               src={user?.img_url || "/avatar.png"}
             />
             <div className="flex flex-col gap-y-2">

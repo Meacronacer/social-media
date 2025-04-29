@@ -71,7 +71,7 @@ const PostItem: React.FC<IPost> = memo(
           src={author?.img_url || "/avatar.png"}
           width={32}
           height={32}
-          className="h-8 w-8 rounded-[50%]"
+          className="h-8 w-8 rounded-[50%] object-cover object-center"
           alt="avatar"
         />
         <div className="w-full">

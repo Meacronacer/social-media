@@ -68,7 +68,7 @@ const Comment: React.FC<props> = ({ userId, postAuthorId, comment }) => {
         }}
         width={32}
         height={32}
-        className={cn("rounded-[50%]", {
+        className={cn("rounded-[50%] object-cover object-center", {
           "cursor-default": true,
           "cursor-pointer": !canEdit,
         })}

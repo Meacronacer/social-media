@@ -35,7 +35,7 @@ const SettingsClientPage = () => {
         <div className="flex items-center gap-x-6">
           <Image
             src={img_url || "/avatar.png"}
-            className="h-[112px] w-[112px] rounded-full"
+            className="h-[112px] w-[112px] rounded-full object-cover object-center"
             width={112}
             height={112}
             alt="avatar"

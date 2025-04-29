@@ -126,7 +126,7 @@ const SideBar: React.FC = () => {
             height={32}
             alt="avatar"
             src={user?.img_url || "/avatar.png"}
-            className="h-8 w-8 rounded-[50%]"
+            className="h-8 w-8 rounded-[50%] object-cover object-center"
           />
           {isLoading ? (
             <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
