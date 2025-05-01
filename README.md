@@ -8,63 +8,70 @@ A full-stack responsive social network built with Next.js and Express.js. Featur
 
 ## 🎯 Features
 
-- **Authentication & Authorization**  
-  - JWT-based authentication (access & refresh tokens in `HttpOnly`, `Secure` cookies)  
-  - OAuth2 login with Google  
-  - Email verification on registration  
-  - Password reset via email  
+- **Authentication & Authorization**
 
-- **User Profiles**  
-  - Profile page showing followers & following counts  
-  - Display user information: name, surname, bio, skills  
-  - Profile picture upload  
+  - JWT-based authentication (access & refresh tokens in `HttpOnly`, `Secure` cookies)
+  - OAuth2 login with Google
+  - Email verification on registration
+  - Password reset via email
 
-- **Posts & Interactions**  
-  - Create, edit, and delete posts  
-  - Like and comment on any post  
-  - Edit your own posts and comments  
-  - Emoji support in posts via `emoji-mart/react`  
+- **User Profiles**
 
-- **Search & Discovery**  
-  - Infinite scrolling through all registered users  
-  - Live search by username or name  
-  - Navigate to user profiles or initiate chat directly  
+  - Profile page showing followers & following counts
+  - Display user information: name, surname, bio, skills
+  - Profile picture upload
 
-- **Real-time Chat**  
-  - One-to-one chat interface only (no group chats)  
-  - Infinite scroll in chat history for performance  
-  - Emoji picker in messages  
-  - Search across your chats  
+- **Posts & Interactions**
 
-- **Settings**  
-  - Update profile details: name, surname, bio, skills  
-  - Change profile picture  
+  - Create, edit, and delete posts
+  - Like and comment on any post
+  - Edit your own posts and comments
+  - Emoji support in posts via `emoji-mart/react`
+
+- **Search & Discovery**
+
+  - Infinite scrolling through all registered users
+  - Live search by username or name
+  - Navigate to user profiles or initiate chat directly
+
+- **Real-time Chat**
+
+  - One-to-one chat interface only (no group chats)
+  - Infinite scroll in chat history for performance
+  - Emoji picker in messages
+  - Search across your chats
+
+- **Settings**
+  - Update profile details: name, surname, bio, skills
+  - Change profile picture
 
 ---
 
 ## 🚀 Tech Stack
 
-| Layer            | Technology                          |
-| ---------------- | ----------------------------------- |
-| **Frontend**     | Next.js, React                      |
-| **Backend**      | Express.js, Node.js                 |
-| **Auth**         | JSON Web Tokens, OAuth2 Google      |
-| **Email**        | Nodemailer                          |
-| **Real-time**    | Socket.io                           |
-| **Database**     | MongoDB                             |
-| **Emoji Picker** | emoji-mart/react                    |
+| Layer            | Technology                     |
+| ---------------- | ------------------------------ |
+| **Frontend**     | Next.js, React                 |
+| **Backend**      | Express.js, Node.js            |
+| **Auth**         | JSON Web Tokens, OAuth2 Google |
+| **Email**        | Nodemailer                     |
+| **Real-time**    | Socket.io                      |
+| **Database**     | MongoDB                        |
+| **Emoji Picker** | emoji-mart/react               |
 
 ---
 
 ## 📦 Installation & Environment
 
-1. **Clone the repository**  
+1. **Clone the repository**
+
    ```bash
    git clone https://github.com/Meacronacer/social-media.git
    cd social-media
    ```
 
-2. **Install dependencies**  
+2. **Install dependencies**
+
    ```bash
    # Frontend
    cd frontend
@@ -93,7 +100,7 @@ A full-stack responsive social network built with Next.js and Express.js. Featur
 
 ## ⚙️ Backend Setup
 
-1. **Start server**  
+1. **Start server**
    ```bash
    cd server
    npm run dev
@@ -104,7 +111,7 @@ A full-stack responsive social network built with Next.js and Express.js. Featur
 
 ## 🌐 Frontend Setup
 
-1. **Start client**  
+1. **Start client**
    ```bash
    cd client
    npm run dev
@@ -115,23 +122,25 @@ A full-stack responsive social network built with Next.js and Express.js. Featur
 
 ## 🔒 Authentication Flow
 
-- **JWT** stored securely in cookies (access + refresh tokens)  
-- **Refresh token rotation** on use and blacklist on logout  
-- **Google OAuth2** handled via custom backend endpoints  
-- **Email confirmation** uses time-limited signed tokens  
+- **JWT** stored securely in cookies (access + refresh tokens)
+- **Refresh token rotation** on use and blacklist on logout
+- **Google OAuth2** handled via custom backend endpoints
+- **Email confirmation** uses time-limited signed tokens
 
 ---
 
 ## 📁 API Documentation
 
-> Documentation is auto-generated via OpenAPI/Swagger  
-- Access via `/api/docs` on the backend server  
+> Documentation is auto-generated via OpenAPI/Swagger
+
+- Access via `/api/docs` on the backend server
 
 ---
 
 ## ☁️ Deployment
 
 ### Backend
+
 - Provide a `Procfile`:
   ```
   web: npm run migrate && npm start
@@ -139,24 +148,25 @@ A full-stack responsive social network built with Next.js and Express.js. Featur
 - Set environment variables in your host (e.g., Heroku, Railway)
 
 ### Frontend
-- Deploy via Vercel or Netlify  
-- Set `NEXT_PUBLIC_API_URL` to your backend URL  
+
+- Deploy via Vercel or Netlify
+- Set `NEXT_PUBLIC_API_URL` to your backend URL
 
 ---
 
 ## 🤝 Contributing
 
-1. Fork this repository  
-2. Create your feature branch:  
+1. Fork this repository
+2. Create your feature branch:
    ```bash
    git checkout -b feat/awesome-feature
    ```
-3. Commit your changes  
-4. Push to the branch  
-5. Open a Pull Request  
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
 ---
 
 ## 📜 License
 
-MIT © Your Name
+MIT © Ivan Popovych

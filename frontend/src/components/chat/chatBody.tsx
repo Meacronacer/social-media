@@ -70,7 +70,7 @@ const ChatBody: React.FC<props> = ({
           <Image
             width={32}
             height={32}
-            className="rounded-[50%]"
+            className="h-8 w-8 rounded-[50%] object-cover object-center"
             src={img_url || "/avatar.png"}
             alt="avatar"
           />
@@ -163,7 +163,7 @@ const ChatBody: React.FC<props> = ({
         <div className="absolute bottom-24 flex w-[calc(100%-40px)] items-center gap-x-3 border-[1px] bg-black p-4">
           <Image
             src={currentUser?.img_url || "/avatar.png"}
-            className="rounded-[50%]"
+            className="h-8 w-8 rounded-[50%] object-cover object-center"
             width={32}
             height={32}
             alt="avatar"
