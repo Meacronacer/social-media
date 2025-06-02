@@ -20,8 +20,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*",
-        destination:
-          "https://social-media-production-b56c.up.railway.app/api/:path*",
+        destination: "https://social-media-xok6.onrender.com/api/:path*",
       },
     ];
   },
