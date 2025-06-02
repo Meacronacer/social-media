@@ -16,7 +16,7 @@ const SubscriptionItem: React.FC<IAuthor> = ({
     >
       <Image
         src={img_url || "/avatar.png"}
-        className="rounded-[50%]"
+        className="h-8 w-8 rounded-[50%] object-cover object-center"
         height={32}
         width={32}
         alt="avatar"
