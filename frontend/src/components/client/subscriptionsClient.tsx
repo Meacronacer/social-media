@@ -13,12 +13,13 @@ import Image from "next/image";
 import React, { useState } from "react";
 import SubscriptionItemSkeleton from "../skeletons/subscriptionsItemSkeleton";
 import { useParams, useRouter } from "next/navigation";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 
 const SubscribersClientPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"followers" | "following">(
     "followers",
   );
-  const currentUser = useAppSelector((state) => state.authSlice.user);
+  const currentUser = useAppSelector(selectGetMeResult)?.data;
   const router = useRouter();
   const params = useParams();
   const userId = Array.isArray(params.userId)

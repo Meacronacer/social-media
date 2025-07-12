@@ -1,6 +1,7 @@
 import { IAuthor } from "@/@types/user";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { memo } from "react";
 
 const SubscriptionItem: React.FC<IAuthor> = ({
   _id,
@@ -28,4 +29,4 @@ const SubscriptionItem: React.FC<IAuthor> = ({
   );
 };
 
-export default SubscriptionItem;
+export default memo(SubscriptionItem);

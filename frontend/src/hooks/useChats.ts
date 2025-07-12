@@ -10,13 +10,14 @@ import {
 import { clearNewUser } from "@/redux/slices/chatSlice";
 import { getChatId } from "@/utils/getChatId";
 import { IAuthor } from "@/@types/user";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 
 export const useChats = (debouncedSearchTerm: string) => {
   const [user, setUser] = useState<IAuthor | null>(null);
   const dispatch = useAppDispatch();
   const activeChats = useAppSelector((state) => state.chatSlice.activeChats);
   const { socket } = useSocket();
-  const currentUserId = useAppSelector((state) => state.authSlice.user?._id);
+  const currentUserId = useAppSelector(selectGetMeResult)?.data?._id;
   const { _id, first_name, second_name, img_url } = useAppSelector(
     (state) => state.chatSlice.newUser,
   );

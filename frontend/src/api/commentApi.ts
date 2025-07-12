@@ -1,9 +1,9 @@
 import { BaseApi } from "@/utils/baseFetch";
 import { postsApi } from "./postsApi";
-import { RootState } from "@/redux/store";
 import { IComment } from "@/@types/comment";
 import { IPost } from "@/@types/post";
 import { toast } from "react-toastify";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 
 export const commentApi = BaseApi.injectEndpoints({
   endpoints: (builder) => ({
@@ -157,7 +157,7 @@ export const commentApi = BaseApi.injectEndpoints({
         { commentId, postId },
         { dispatch, queryFulfilled, getState },
       ) {
-        const userId = (getState() as RootState).authSlice.user._id;
+        const userId = selectGetMeResult(getState())?.data?._id;
         const patchResults = [];
         const queries = postsApi.util.selectInvalidatedBy(getState(), [
           { type: "Post", id: postId },

@@ -56,7 +56,18 @@ export const userApi = BaseApi.injectEndpoints({
         method: "POST",
         body: formData,
       }),
-      invalidatesTags: ["User"],
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data: updatedUser } = await queryFulfilled;
+
+          // Обновляем кеш getMe с новым пользователем
+          dispatch(
+            userApi.util.updateQueryData("getMe", undefined, (draft) => {
+              Object.assign(draft, updatedUser);
+            }),
+          );
+        } catch {}
+      },
     }),
   }),
 });

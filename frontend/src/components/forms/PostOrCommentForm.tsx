@@ -8,6 +8,7 @@ import { useCreatePostMutation } from "@/api/postsApi";
 import { useCreateCommentMutation } from "@/api/commentApi";
 import { useAppSelector } from "@/hooks/useRedux";
 import EmojiPickerWrapper from "../shared/emojiPickerWrapper";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 
 interface Props {
   postId?: string;
@@ -24,9 +25,11 @@ const PostOrCommentForm: React.FC<Props> = ({
   const [createPost, { isLoading: postLoading }] = useCreatePostMutation();
   const [createComment, { isLoading: commentLoading }] =
     useCreateCommentMutation();
-  const { _id: userId, img_url } = useAppSelector(
-    (state) => state.authSlice.user,
-  );
+  const { data: user } = useAppSelector(selectGetMeResult);
+
+  if (!user?._id) return null;
+
+  const { _id: userId, img_url } = user;
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

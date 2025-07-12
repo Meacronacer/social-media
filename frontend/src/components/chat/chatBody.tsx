@@ -17,6 +17,7 @@ import { Emoji } from "@emoji-mart/data";
 import Link from "next/link";
 import EmojiPickerWrapper from "../shared/emojiPickerWrapper";
 import { IAuthor } from "@/@types/user";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 
 export interface CustomEmoji extends Emoji {
   native: string;
@@ -34,8 +35,8 @@ const ChatBody: React.FC<props> = ({
   img_url,
   setUser,
 }) => {
-  const currentUser = useAppSelector((state) => state.authSlice.user);
-  const chatId = getChatId(currentUser._id, _id);
+  const currentUser = useAppSelector(selectGetMeResult)?.data;
+  const chatId = getChatId(currentUser?._id, _id);
   const chatRef = useRef<HTMLDivElement>(null);
 
   const { messages, isLoading, otherUserTyping, sendMessage } = useChatMessages(
@@ -142,9 +143,9 @@ const ChatBody: React.FC<props> = ({
                     user={
                       message.sender === currentUser?._id
                         ? {
-                            first_name: currentUser.first_name,
-                            second_name: currentUser.second_name,
-                            img_url: currentUser.img_url,
+                            first_name: currentUser?.first_name,
+                            second_name: currentUser?.second_name,
+                            img_url: currentUser?.img_url,
                           }
                         : {
                             first_name: first_name,

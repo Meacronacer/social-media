@@ -137,7 +137,7 @@ const ProfileSection: React.FC<{ isOwnPage: boolean }> = ({ isOwnPage }) => {
                       height={36}
                       src={item?.img_url || "/avatar.png"}
                       alt="ava"
-                      className="cursor-pointer rounded-full duration-200 hover:scale-105 hover:brightness-75"
+                      className="h-9 w-9 cursor-pointer rounded-full duration-200 hover:scale-105 hover:brightness-75"
                     />
                   ))
                 ) : (
@@ -162,7 +162,7 @@ const ProfileSection: React.FC<{ isOwnPage: boolean }> = ({ isOwnPage }) => {
 
           {/* skills */}
 
-          {user?.skills?.length > 0 && (
+          {user?.skills && user?.skills?.length > 0 && (
             <span className="mt-8 block text-[18px] font-extrabold">
               Skills
             </span>

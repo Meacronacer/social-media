@@ -1,6 +1,7 @@
 "use client";
 import ProfileSection from "@/components/shared/profileSection";
 import { useAppSelector } from "@/hooks/useRedux";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 import { LinkTo } from "@/utils/links";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -10,7 +11,7 @@ interface props {
 }
 
 const ProfileClientPage: React.FC<props> = ({ isOwnPage }) => {
-  const userId = useAppSelector((state) => state.authSlice.user._id);
+  const userId = useAppSelector(selectGetMeResult)?.data?._id;
   const router = useRouter();
   const path = usePathname();
 

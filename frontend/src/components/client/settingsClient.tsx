@@ -9,10 +9,11 @@ import { useRouter } from "next/navigation";
 import { LinkTo } from "@/utils/links";
 import Switch from "../ui/switch";
 import { SettingsClientPageSkeleton } from "../skeletons/settingsSkeleton";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 
 const SettingsClientPage = () => {
   const { first_name, second_name, img_url, description, skills } =
-    useAppSelector((state) => state.authSlice.user);
+    useAppSelector(selectGetMeResult)?.data || {};
 
   const [logout] = useLogoutMutation({});
   const router = useRouter();
@@ -59,7 +60,7 @@ const SettingsClientPage = () => {
           <span className="mt-4 block text-[18px] font-extrabold">Skills</span>
 
           <div className="mt-3 flex flex-wrap gap-1">
-            {skills?.length > 0 ? (
+            {skills && skills?.length > 0 ? (
               skills?.map((text: string, idx: number) => (
                 <Skill key={idx} text={text} />
               ))

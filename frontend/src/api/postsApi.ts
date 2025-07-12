@@ -3,6 +3,7 @@ import { RootState } from "@/redux/store";
 import { BaseApi, baseHeadersOptions } from "@/utils/baseFetch";
 import { userApi } from "./userApi";
 import { toast } from "react-toastify";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 
 type IcreatePost = { text: string; profileId: string };
 
@@ -180,7 +181,7 @@ export const postsApi = BaseApi.injectEndpoints({
               if (post) {
                 // Если лайк уже поставлен – удаляем userId залогиненного пользователя,
                 // иначе – добавляем.
-                const loggedInUserId = state.authSlice.user?._id;
+                const loggedInUserId = selectGetMeResult(state).data?._id;
                 if (post.likes.includes(loggedInUserId)) {
                   post.likes = post.likes.filter(
                     (id: string) => id !== loggedInUserId,

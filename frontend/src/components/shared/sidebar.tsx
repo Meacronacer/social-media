@@ -9,13 +9,11 @@ import SearchIcon from "@/components/svgs/search.svg";
 import ArrowRightIcon from "@/components/svgs/arrow-right.svg";
 import SettingsIcon from "@/components/svgs/settings.svg";
 import SubscriptionItem from "./subscriptionItem";
-import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import { useAppSelector } from "@/hooks/useRedux";
 import { LinkTo } from "@/utils/links";
-import { useGetMeQuery } from "@/api/userApi";
-import { setUser } from "@/redux/slices/authSlice";
-import { useEffect } from "react";
 import SubscriptionItemSkeleton from "../skeletons/subscriptionsItemSkeleton";
 import useUnreadCount from "@/hooks/useNewMessageToast";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 
 const nav = [
   { image: <HomeIcon />, label: "Profile", link: LinkTo.home },
@@ -27,13 +25,7 @@ const SideBar: React.FC = () => {
   const path = usePathname();
   const router = useRouter();
 
-  const dispatch = useAppDispatch();
-  const { data: user = null, isLoading, isSuccess } = useGetMeQuery();
-  useEffect(() => {
-    if (isSuccess && user) {
-      dispatch(setUser(user)); // Сохраняем данные пользователя в Redux
-    }
-  }, [isSuccess, user, dispatch]);
+  const { data: user, isLoading } = useAppSelector(selectGetMeResult);
 
   useUnreadCount();
 
@@ -80,7 +72,7 @@ const SideBar: React.FC = () => {
           </ul>
         </nav>
 
-        {user?.followers && user?.followers.length > 0 && (
+        {user?.followers && user?.followers?.length > 0 && (
           <span className="ml-4 mt-5 block text-[12px] font-medium text-white/75">
             Followers
           </span>
@@ -94,8 +86,8 @@ const SideBar: React.FC = () => {
               <SubscriptionItemSkeleton />
             </>
           ) : (
-            user?.followers.map((item) => (
-              <SubscriptionItem key={item._id} {...item} />
+            user?.followers?.map((item) => (
+              <SubscriptionItem key={item?._id} {...item} />
             ))
           )}
         </div>

@@ -3,6 +3,7 @@
 import { Ichat } from "@/@types/chat";
 import { IAuthor } from "@/@types/user";
 import { useAppSelector } from "@/hooks/useRedux";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 import { formatMessageTimestamp } from "@/utils/formatMessageTimeStamp";
 import { cn } from "@/utils/twMerge";
 import Image from "next/image";
@@ -25,7 +26,7 @@ const ChatOverview: React.FC<props> = ({
   markAsRead,
   selectedUserId,
 }) => {
-  const currentUserId = useAppSelector((state) => state.authSlice.user?._id);
+  const currentUserId = useAppSelector(selectGetMeResult)?.data?._id;
 
   if (!participants) return null;
 

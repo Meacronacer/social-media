@@ -1,7 +1,7 @@
 export interface Iuser extends IAuthor {
   email: string | undefined;
-  description: string;
-  skills: string[];
+  description?: string;
+  skills?: string[];
   followers: IAuthor[];
   following?: IAuthor[];
   postsCount: number | undefined;

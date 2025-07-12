@@ -4,6 +4,7 @@ import { ObjectId, Types } from "mongoose";
 import AvatarService from "./avatar.service";
 import PostModel from "../models/Post";
 import ApiError from "../exceptions/api-errors";
+import { getUpdatedUser } from "../utils/getUpdatedUser";
 
 interface UpdateProfileData {
   first_name: string;
@@ -130,7 +131,12 @@ class UserService {
     const updatedUser = await UserModel.findByIdAndUpdate(userId, updateData, {
       new: true,
     });
-    return updatedUser;
+
+    if (!updatedUser) {
+      throw ApiError.BadRequest("Can't update user!");
+    }
+
+    return getUpdatedUser(updateData);
   }
 }
 

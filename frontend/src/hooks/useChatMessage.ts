@@ -10,7 +10,7 @@ import { IMessage } from "@/@types/message";
 
 export const useChatMessages = (
   chatId: string,
-  currentUser: Iuser,
+  currentUser: Iuser | undefined,
   toUserId: string | undefined,
   chatRef: RefObject<HTMLDivElement | null>,
 ) => {
@@ -42,7 +42,7 @@ export const useChatMessages = (
 
   useEffect(() => {
     socket?.emit("joinRoom", {
-      currentUserId: currentUser._id,
+      currentUserId: currentUser?._id,
       toUserId,
     });
 
@@ -62,7 +62,7 @@ export const useChatMessages = (
       socket?.off("receiveMessage");
       socket?.off("userTyping");
       socket?.off("userStopTyping");
-      socket?.emit("leaveRoom", { currentUserId: currentUser._id, toUserId });
+      socket?.emit("leaveRoom", { currentUserId: currentUser?._id, toUserId });
     };
   }, [socket, currentUser?._id, toUserId]);
 
@@ -115,7 +115,10 @@ export const useChatMessages = (
 
   const sendMessage = useCallback(
     (message: string) => {
-      const { _id, first_name, second_name, img_url } = currentUser;
+      const _id = currentUser?._id;
+      const first_name = currentUser?.first_name;
+      const second_name = currentUser?.second_name;
+      const img_url = currentUser?.img_url;
       if (message.trim() && toUserId && _id) {
         socket?.emit("sendMessage", {
           currentUserId: _id,

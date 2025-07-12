@@ -16,13 +16,14 @@ import { useAppSelector } from "@/hooks/useRedux";
 import Popup from "./popup";
 import EditText from "./editText";
 import { IPost } from "@/@types/post";
+import { selectGetMeResult } from "@/redux/selectors/userSelector";
 
 const PostItem: React.FC<IPost> = memo(
   ({ _id, author, text, comments, likes, createdAt }) => {
     const [showComments, setShowComments] = useState<boolean>(false);
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
-    const userId = useAppSelector((state) => state.authSlice.user._id);
+    const userId = useAppSelector(selectGetMeResult)?.data?._id;
     const postIsLikedByUser = likes?.includes(userId);
 
     const [likePost] = useLikePostMutation();

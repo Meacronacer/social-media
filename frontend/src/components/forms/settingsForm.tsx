@@ -65,7 +65,7 @@ interface Inputs {
   firstName: string;
   lastName: string;
   description?: string;
-  skills?: string;
+  skills?: string | undefined;
   avatar?: File | null;
 }
 

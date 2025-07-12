@@ -48,7 +48,7 @@ const SearchItem: React.FC<Iuser> = ({
       </p>
 
       <div className="flex min-w-[150px] flex-wrap gap-1">
-        {skills.length > 0 ? (
+        {skills && skills.length > 0 ? (
           skills
             ?.slice(0, 8)
             .map((item: string, index: number) => (
